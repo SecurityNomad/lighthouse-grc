@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import RisksPage from './pages/RisksPage'
 
@@ -25,7 +26,7 @@ function NavItem({ to, label, disabled = false }: { to: string; label: string; d
   )
 }
 
-function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-6">

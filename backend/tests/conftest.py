@@ -1,10 +1,12 @@
 """
 Pytest configuration and shared fixtures for Lighthouse backend tests.
 
-Uses an in-memory SQLite database (via aiosqlite) for speed in CI.
-For full PostgreSQL-backed integration tests, set TEST_DATABASE_URL in the environment.
+Defaults to an in-memory SQLite database for fast local runs.
+Set TEST_DATABASE_URL in the environment to target PostgreSQL instead
+(used in CI where a Postgres service is already running).
 """
 import asyncio
+import os
 from typing import AsyncGenerator
 
 import pytest
@@ -16,9 +18,10 @@ from app.database import Base, get_db
 from app.main import app
 
 # ---------------------------------------------------------------------------
-# Use SQLite for unit tests; override with Postgres via TEST_DATABASE_URL env var
+# CI passes TEST_DATABASE_URL pointing at the Postgres service container.
+# Local runs default to SQLite in-memory (no Docker needed for unit tests).
 # ---------------------------------------------------------------------------
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
 
 @pytest.fixture(scope="session")

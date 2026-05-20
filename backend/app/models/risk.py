@@ -1,16 +1,17 @@
 import uuid
 from datetime import date, datetime
-from sqlalchemy import String, Text, Date, DateTime, func, ARRAY
+from sqlalchemy import String, Text, Date, DateTime, JSON, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 
 
 class Risk(Base):
     __tablename__ = "risks"
 
+    # Uuid (capital U) is SQLAlchemy 2's dialect-agnostic UUID type —
+    # uses native UUID on Postgres, VARCHAR(36) on SQLite.
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -30,7 +31,9 @@ class Risk(Base):
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, default="Open"
     )  # Open / In Treatment / Closed / Accepted
-    tags: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    # JSON works on both Postgres and SQLite (used in tests).
+    # Stores a list of tag strings, e.g. ["cloud", "access-control"].
+    tags: Mapped[list[str] | None] = mapped_column(JSON)
     review_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
