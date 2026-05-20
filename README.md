@@ -53,8 +53,8 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/rahamawazo/lighthouse.git
-cd lighthouse
+git clone https://github.com/SecurityNomad/lighthouse-grc.git
+cd lighthouse-grc
 
 # 2. Copy the environment file and review defaults
 cp .env.example .env
