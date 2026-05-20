@@ -52,7 +52,8 @@ dist/
 docker-compose.override.yml
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
