@@ -74,3 +74,6 @@ coverage.xml
 .env.local
 .env.*.local
 !.env.example
+
+# Claude Code
+.claude/
