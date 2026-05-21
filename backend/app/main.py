@@ -1,7 +1,26 @@
+from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import settings
-from app.routers import risks
+from app.database import AsyncSessionLocal
+from app.routers import risks, controls
+from app.seed import seed_frameworks
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with AsyncSessionLocal() as session:
+        try:
+            await seed_frameworks(session)
+        except Exception:
+            logger.exception("Framework seeding failed — continuing startup")
+    yield
+
 
 app = FastAPI(
     title="Lighthouse GRC Platform",
@@ -9,6 +28,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -20,6 +40,7 @@ app.add_middleware(
 )
 
 app.include_router(risks.router, prefix="/api/v1/risks", tags=["risks"])
+app.include_router(controls.router, prefix="/api/v1", tags=["controls"])
 
 
 @app.get("/", tags=["health"])

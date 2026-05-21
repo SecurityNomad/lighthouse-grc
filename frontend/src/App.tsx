@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import RisksPage from './pages/RisksPage'
+import ControlsPage from './pages/ControlsPage'
 
 function NavItem({ to, label, disabled = false }: { to: string; label: string; disabled?: boolean }) {
   if (disabled) {
@@ -37,7 +38,7 @@ function Layout({ children }: { children: ReactNode }) {
         </div>
         <div className="flex items-center gap-1 ml-4">
           <NavItem to="/risks" label="Risk Register" />
-          <NavItem to="/controls" label="Controls" disabled />
+          <NavItem to="/controls" label="Controls" />
           <NavItem to="/vendors" label="Vendors" disabled />
           <NavItem to="/audits" label="Audits" disabled />
           <NavItem to="/dashboard" label="Dashboard" disabled />
@@ -57,6 +58,7 @@ function App() {
         <Routes>
           <Route path="/" element={<RisksPage />} />
           <Route path="/risks" element={<RisksPage />} />
+          <Route path="/controls" element={<ControlsPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

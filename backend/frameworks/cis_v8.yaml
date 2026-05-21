@@ -1,0 +1,214 @@
+slug: cis_v8
+name: "CIS Controls v8"
+version: "v8.0 (2021)"
+description: >
+  The CIS Critical Security Controls (v8) are a prioritised set of actions that
+  collectively form a defence-in-depth set of best practices. Controls are organised
+  into three Implementation Groups (IG1 = basic hygiene, IG2 = foundational,
+  IG3 = organisational). All IG1 safeguards apply to every organisation.
+
+controls:
+  - ref: "CIS-1"
+    domain: "Basic Hygiene"
+    title: "Inventory and Control of Enterprise Assets"
+    description: >
+      Actively manage (inventory, track, and correct) all enterprise assets
+      (end-user devices, network devices, IoT devices, and servers) connected to
+      the infrastructure, physically, virtually, remotely, and those within cloud
+      environments, to accurately know the totality of assets that need to be
+      monitored and protected within the enterprise. This will also support
+      identifying unauthorised and unmanaged assets to remove or remediate.
+      IG1 safeguards include: establishing and maintaining a detailed enterprise
+      asset inventory; addressing unauthorised assets.
+
+  - ref: "CIS-2"
+    domain: "Basic Hygiene"
+    title: "Inventory and Control of Software Assets"
+    description: >
+      Actively manage (inventory, track, and correct) all software (operating
+      systems and applications) on the network so that only authorised software
+      is installed and can execute, and that unauthorised and unmanaged software
+      is found and prevented from installation or execution.
+      IG1 safeguards include: establishing and maintaining a software inventory;
+      ensuring authorised software is currently supported; addressing unauthorised
+      software.
+
+  - ref: "CIS-3"
+    domain: "Basic Hygiene"
+    title: "Data Protection"
+    description: >
+      Develop processes and technical controls to identify, classify, securely
+      handle, retain, and dispose of data. Protecting data at rest and in transit
+      prevents unauthorised disclosure and ensures data integrity.
+      IG1 safeguards include: establishing and maintaining a data management
+      process; configuring data access control lists; securely disposing of data.
+
+  - ref: "CIS-4"
+    domain: "Basic Hygiene"
+    title: "Secure Configuration of Enterprise Assets and Software"
+    description: >
+      Establish and maintain the secure configuration of enterprise assets (end-user
+      devices, network devices, non-computing/IoT devices, and servers) and software
+      (operating systems and applications). Misconfigurations are a leading cause
+      of breaches; secure baselines reduce attack surface.
+      IG1 safeguards include: establishing and maintaining a secure configuration
+      process; establishing and maintaining a secure configuration for enterprise
+      assets and software.
+
+  - ref: "CIS-5"
+    domain: "Basic Hygiene"
+    title: "Account Management"
+    description: >
+      Use processes and tools to assign and manage authorisation to credentials for
+      user accounts, including administrator accounts, as well as service accounts,
+      to enterprise assets and software. Managing accounts reduces credential abuse
+      and limits the blast radius of compromised credentials.
+      IG1 safeguards include: establishing and maintaining an inventory of accounts;
+      using unique passwords; disabling dormant accounts; restricting administrator
+      privileges.
+
+  - ref: "CIS-6"
+    domain: "Basic Hygiene"
+    title: "Access Control Management"
+    description: >
+      Use processes and tools to create, assign, manage, and revoke access credentials
+      and privileges for user, administrator, and service/application accounts for
+      enterprise assets and software. Principle of least privilege reduces the impact
+      of compromised accounts.
+      IG1 safeguards include: establishing an access granting process; establishing
+      an access revoking process; requiring MFA for externally exposed applications;
+      requiring MFA for remote network access.
+
+  - ref: "CIS-7"
+    domain: "Foundational"
+    title: "Continuous Vulnerability Management"
+    description: >
+      Develop a plan to continuously assess and track vulnerabilities on all enterprise
+      assets within the enterprise's infrastructure, in order to remediate, and minimise,
+      the window of opportunity for attackers. Monitor public and private industry sources
+      for new threat and vulnerability information.
+      IG1 safeguards include: establishing and maintaining a vulnerability management
+      process; establishing and maintaining a remediation process; performing automated
+      OS patch management; performing automated application patch management.
+
+  - ref: "CIS-8"
+    domain: "Foundational"
+    title: "Audit Log Management"
+    description: >
+      Collect, alert, review, and retain audit logs of events that could help detect,
+      understand, or recover from an attack. Log management helps identify threats,
+      support incident investigations, and meet compliance requirements.
+      IG1 safeguards include: establishing and maintaining an audit log management
+      process; collecting audit logs; ensuring adequate audit log storage.
+
+  - ref: "CIS-9"
+    domain: "Foundational"
+    title: "Email and Web Browser Protections"
+    description: >
+      Improve protections and detections of threats from email and web vectors, as
+      these are opportunities for attackers to manipulate human behaviour through
+      direct engagement. Email and web-borne attacks are the most common initial
+      access vectors.
+      IG1 safeguards include: ensuring use of only fully supported browsers and email
+      clients; using DNS filtering services; maintaining and enforcing network-based
+      URL filters.
+
+  - ref: "CIS-10"
+    domain: "Foundational"
+    title: "Malware Defenses"
+    description: >
+      Prevent or control the installation, spread, and execution of malicious
+      applications, code, or scripts on enterprise assets. Anti-malware controls
+      reduce the dwell time and impact of malware incidents.
+      IG1 safeguards include: deploying and maintaining anti-malware software;
+      configuring automatic anti-malware signature updates; disabling autorun and
+      autoplay for removable media.
+
+  - ref: "CIS-11"
+    domain: "Foundational"
+    title: "Data Recovery"
+    description: >
+      Establish and maintain data recovery practices sufficient to restore in-scope
+      enterprise assets to a pre-incident and trusted state. Regular backups ensure
+      resilience against ransomware and destructive attacks.
+      IG1 safeguards include: establishing and maintaining a data recovery process;
+      performing automated backups; protecting recovery data; establishing and
+      maintaining an isolated instance of recovery data.
+
+  - ref: "CIS-12"
+    domain: "Foundational"
+    title: "Network Infrastructure Management"
+    description: >
+      Establish, implement, and actively manage (track, report, correct) network
+      devices, in order to prevent attackers from exploiting vulnerable network
+      services and access points. Secure network architecture limits lateral movement.
+      IG1 safeguards include: ensuring network infrastructure is up-to-date;
+      establishing and maintaining a secure network architecture.
+
+  - ref: "CIS-13"
+    domain: "Foundational"
+    title: "Network Monitoring and Defense"
+    description: >
+      Operate processes and tooling to establish and maintain comprehensive network
+      monitoring and defense against security threats across the enterprise's network
+      infrastructure and user base. Network visibility enables timely threat detection
+      and response.
+      IG1 safeguards include: centralising security event alerting; deploying a
+      host-based intrusion detection solution.
+
+  - ref: "CIS-14"
+    domain: "Foundational"
+    title: "Security Awareness and Skills Training"
+    description: >
+      Establish and maintain a security awareness program to influence behaviour
+      among the workforce to be security conscious and properly skilled to reduce
+      cybersecurity risks to the enterprise. Humans remain the most targeted attack
+      vector; training measurably reduces susceptibility.
+      IG1 safeguards include: establishing and maintaining a security awareness program;
+      training workforce members to recognise social engineering attacks; training
+      workforce members on authentication best practices; training workforce on data
+      handling best practices.
+
+  - ref: "CIS-15"
+    domain: "Organisational"
+    title: "Service Provider Management"
+    description: >
+      Develop a process to evaluate service providers who hold sensitive data, or are
+      responsible for an enterprise's critical IT platforms or processes, to ensure
+      these providers are protecting those platforms and data appropriately.
+      IG1 safeguards include: establishing and maintaining an inventory of service
+      providers; establishing and maintaining a service provider management policy.
+
+  - ref: "CIS-16"
+    domain: "Organisational"
+    title: "Application Software Security"
+    description: >
+      Manage the security life cycle of in-house developed, hosted, or acquired
+      software in order to prevent, detect, and remediate security weaknesses before
+      they can impact the enterprise.
+      IG1 safeguards include: establishing and maintaining a secure application
+      development process; establishing and maintaining a process to accept and
+      address software vulnerabilities.
+
+  - ref: "CIS-17"
+    domain: "Organisational"
+    title: "Incident Response Management"
+    description: >
+      Establish a program to develop and maintain an incident response capability
+      (e.g. policies, plans, procedures, defined roles, training, and communications)
+      to prepare, detect, and quickly respond to an attack.
+      IG1 safeguards include: designating personnel to manage incident handling;
+      establishing and maintaining contact information for reporting security incidents;
+      establishing and maintaining an enterprise process for reporting incidents.
+
+  - ref: "CIS-18"
+    domain: "Organisational"
+    title: "Penetration Testing"
+    description: >
+      Test the effectiveness and resiliency of enterprise assets through identifying
+      and exploiting weaknesses in controls (people, processes, and technology), and
+      based on the findings, implement corrective actions. Regular penetration testing
+      validates the effectiveness of controls and identifies gaps before attackers do.
+      IG2+ safeguards include: establishing and maintaining a penetration testing
+      programme; performing periodic external penetration tests; performing periodic
+      internal penetration tests.

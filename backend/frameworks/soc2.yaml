@@ -1,0 +1,288 @@
+slug: soc2
+name: "SOC 2 Trust Services Criteria"
+version: "2017 (updated 2022)"
+description: >
+  AICPA Trust Services Criteria covering security, availability, processing integrity,
+  confidentiality, and privacy. The Common Criteria (CC) apply to all engagements;
+  additional categories are in scope based on the system description.
+
+controls:
+  # ── CC1: Control Environment ──────────────────────────────────────────────
+  - ref: "CC1.1"
+    domain: "Control Environment"
+    title: "Demonstrates Commitment to Integrity and Ethical Values"
+    description: >
+      The entity demonstrates a commitment to integrity and ethical values.
+      Management establishes a tone at the top through its behaviour, communication,
+      and enforcement of policies relating to conduct and ethics.
+
+  - ref: "CC1.2"
+    domain: "Control Environment"
+    title: "Board Exercises Oversight Responsibility"
+    description: >
+      The board of directors demonstrates independence from management and exercises
+      oversight of the development and performance of internal control.
+
+  - ref: "CC1.3"
+    domain: "Control Environment"
+    title: "Management Establishes Structure, Authority, and Responsibility"
+    description: >
+      Management establishes structures, reporting lines, and appropriate authorities
+      and responsibilities in the pursuit of objectives.
+
+  - ref: "CC1.4"
+    domain: "Control Environment"
+    title: "Demonstrates Commitment to Competence"
+    description: >
+      The entity demonstrates a commitment to attract, develop, and retain competent
+      individuals in alignment with its objectives.
+
+  - ref: "CC1.5"
+    domain: "Control Environment"
+    title: "Enforces Accountability"
+    description: >
+      The entity holds individuals accountable for their internal control
+      responsibilities in pursuit of objectives.
+
+  # ── CC2: Communication and Information ────────────────────────────────────
+  - ref: "CC2.1"
+    domain: "Communication and Information"
+    title: "Uses Relevant, Quality Information"
+    description: >
+      The entity obtains or generates and uses relevant, quality information to
+      support the functioning of internal control.
+
+  - ref: "CC2.2"
+    domain: "Communication and Information"
+    title: "Communicates Internally"
+    description: >
+      The entity internally communicates information, including objectives and
+      responsibilities for internal control, necessary to support the functioning
+      of internal control.
+
+  - ref: "CC2.3"
+    domain: "Communication and Information"
+    title: "Communicates Externally"
+    description: >
+      The entity communicates with external parties regarding matters affecting
+      the functioning of internal control.
+
+  # ── CC3: Risk Assessment ──────────────────────────────────────────────────
+  - ref: "CC3.1"
+    domain: "Risk Assessment"
+    title: "Specifies Suitable Objectives"
+    description: >
+      The entity specifies objectives with sufficient clarity to enable the
+      identification and assessment of risks relating to objectives.
+
+  - ref: "CC3.2"
+    domain: "Risk Assessment"
+    title: "Identifies and Analyzes Risk"
+    description: >
+      The entity identifies risks to the achievement of its objectives across
+      the entity and analyzes risks as a basis for determining how the risks
+      should be managed.
+
+  - ref: "CC3.3"
+    domain: "Risk Assessment"
+    title: "Assesses Fraud Risk"
+    description: >
+      The entity considers the potential for fraud in assessing risks to the
+      achievement of objectives.
+
+  - ref: "CC3.4"
+    domain: "Risk Assessment"
+    title: "Identifies and Assesses Changes"
+    description: >
+      The entity identifies and assesses changes that could significantly impact
+      the system of internal control.
+
+  # ── CC4: Monitoring Activities ────────────────────────────────────────────
+  - ref: "CC4.1"
+    domain: "Monitoring Activities"
+    title: "Conducts Ongoing or Separate Evaluations"
+    description: >
+      The entity selects, develops, and performs ongoing and/or separate
+      evaluations to ascertain whether the components of internal control
+      are present and functioning.
+
+  - ref: "CC4.2"
+    domain: "Monitoring Activities"
+    title: "Evaluates and Communicates Deficiencies"
+    description: >
+      The entity evaluates and communicates internal control deficiencies in a
+      timely manner to those parties responsible for taking corrective action,
+      including senior management and the board of directors, as appropriate.
+
+  # ── CC5: Control Activities ───────────────────────────────────────────────
+  - ref: "CC5.1"
+    domain: "Control Activities"
+    title: "Selects and Develops Control Activities"
+    description: >
+      The entity selects and develops control activities that contribute to the
+      mitigation of risks to the achievement of objectives to acceptable levels.
+
+  - ref: "CC5.2"
+    domain: "Control Activities"
+    title: "Selects and Develops General Controls Over Technology"
+    description: >
+      The entity also selects and develops general control activities over
+      technology to support the achievement of objectives.
+
+  - ref: "CC5.3"
+    domain: "Control Activities"
+    title: "Deploys Through Policies and Procedures"
+    description: >
+      The entity deploys control activities through policies that establish what
+      is expected and procedures that put policies into action.
+
+  # ── CC6: Logical and Physical Access Controls ─────────────────────────────
+  - ref: "CC6.1"
+    domain: "Logical and Physical Access"
+    title: "Logical Access Security Measures"
+    description: >
+      The entity implements logical access security software, infrastructure,
+      and architectures over protected information assets to protect them from
+      security events to meet the entity's objectives.
+
+  - ref: "CC6.2"
+    domain: "Logical and Physical Access"
+    title: "New Internal and Confidential Information Registration"
+    description: >
+      Prior to issuing system credentials and granting system access, the entity
+      registers and authorizes new internal and external users.
+
+  - ref: "CC6.3"
+    domain: "Logical and Physical Access"
+    title: "Role-Based Access and Least Privilege"
+    description: >
+      The entity authorizes, modifies, or removes access to data, software,
+      functions, and other protected information assets based on roles, the
+      principle of least privilege, and separation of duties.
+
+  - ref: "CC6.4"
+    domain: "Logical and Physical Access"
+    title: "Physical Access Restrictions"
+    description: >
+      The entity restricts physical access to facilities and protected information
+      assets to authorised personnel to meet the entity's objectives.
+
+  - ref: "CC6.5"
+    domain: "Logical and Physical Access"
+    title: "Logical and Physical Protections Against Security Threats"
+    description: >
+      The entity discontinues logical and physical protections over physical
+      assets only after the ability to read or recover data and software from
+      those assets has been diminished and is no longer required.
+
+  - ref: "CC6.6"
+    domain: "Logical and Physical Access"
+    title: "Logical Access Security Over External Threats"
+    description: >
+      The entity implements logical access security measures to protect against
+      threats from sources outside its system boundaries.
+
+  - ref: "CC6.7"
+    domain: "Logical and Physical Access"
+    title: "Transmission and Movement of Information"
+    description: >
+      The entity restricts the transmission, movement, and removal of information
+      to authorised internal and external users and processes, and protects it
+      during transmission, movement, or removal.
+
+  - ref: "CC6.8"
+    domain: "Logical and Physical Access"
+    title: "Prevention and Detection of Unauthorised Software"
+    description: >
+      The entity implements controls to prevent or detect and act upon the
+      introduction of unauthorised or malicious software.
+
+  # ── CC7: System Operations ────────────────────────────────────────────────
+  - ref: "CC7.1"
+    domain: "System Operations"
+    title: "Vulnerability and Configuration Management"
+    description: >
+      To meet its objectives, the entity uses detection and monitoring procedures
+      to identify (1) changes to configurations that result in the introduction
+      of new vulnerabilities, and (2) susceptibilities to newly discovered
+      vulnerabilities.
+
+  - ref: "CC7.2"
+    domain: "System Operations"
+    title: "Monitoring for Anomalies and Threats"
+    description: >
+      The entity monitors system components and the operation of those components
+      for anomalies that are indicative of malicious acts, natural disasters, and
+      errors affecting the entity's ability to meet its objectives.
+
+  - ref: "CC7.3"
+    domain: "System Operations"
+    title: "Evaluates Security Events"
+    description: >
+      The entity evaluates security events to determine whether they could or have
+      resulted in a failure of the entity to meet its objectives (security
+      incidents) and, if so, takes actions to prevent or address such failures.
+
+  - ref: "CC7.4"
+    domain: "System Operations"
+    title: "Responds to Security Incidents"
+    description: >
+      The entity responds to identified security incidents by executing a defined
+      incident response program to understand, contain, remediate, and communicate
+      security incidents, as appropriate.
+
+  - ref: "CC7.5"
+    domain: "System Operations"
+    title: "Identifies, Develops, and Implements Remediation"
+    description: >
+      The entity identifies, develops, and implements remediation activities to
+      address identified deficiencies as part of its ongoing monitoring activities.
+
+  # ── CC8: Change Management ────────────────────────────────────────────────
+  - ref: "CC8.1"
+    domain: "Change Management"
+    title: "Authorises, Designs, Develops, Configures, Documents, Tests, Approves, and Implements Changes"
+    description: >
+      The entity authorises, designs, develops or acquires, configures, documents,
+      tests, approves, and implements changes to infrastructure, data, software,
+      and procedures to meet its objectives.
+
+  # ── CC9: Risk Mitigation ──────────────────────────────────────────────────
+  - ref: "CC9.1"
+    domain: "Risk Mitigation"
+    title: "Identifies, Selects, and Develops Risk Mitigation Activities"
+    description: >
+      The entity identifies, selects, and develops risk mitigation activities for
+      risks arising from potential business disruptions.
+
+  - ref: "CC9.2"
+    domain: "Risk Mitigation"
+    title: "Assesses and Manages Risks from Vendors and Business Partners"
+    description: >
+      The entity assesses and manages risks associated with vendors and business
+      partners.
+
+  # ── A1: Availability ──────────────────────────────────────────────────────
+  - ref: "A1.1"
+    domain: "Availability"
+    title: "Capacity Planning"
+    description: >
+      The entity maintains, monitors, and evaluates current processing capacity
+      and use of system components (infrastructure, data, and software) to manage
+      capacity demand and enable the implementation of additional capacity to help
+      meet its objectives.
+
+  - ref: "A1.2"
+    domain: "Availability"
+    title: "Environmental Threat Protections"
+    description: >
+      The entity authorises, designs, develops or acquires, implements, operates,
+      approves, maintains, and monitors environmental protections, software,
+      data back-up processes, and recovery infrastructure to meet its objectives.
+
+  - ref: "A1.3"
+    domain: "Availability"
+    title: "Recovery Plan Testing"
+    description: >
+      The entity tests recovery plan procedures supporting system recovery to meet
+      its objectives.
