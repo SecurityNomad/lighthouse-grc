@@ -1,8 +1,15 @@
 import uuid
 from datetime import date, datetime
-from sqlalchemy import String, Text, Date, DateTime, JSON, Uuid, func
+from sqlalchemy import String, Text, Date, DateTime, JSON, Uuid, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
+
+IMPACT_SCORE_MAP = {
+    "Critical": 5, "High": 4, "Medium": 3, "Low": 2, "Negligible": 1
+}
+LIKELIHOOD_SCORE_MAP = {
+    "Almost Certain": 5, "Likely": 4, "Possible": 3, "Unlikely": 2, "Rare": 1
+}
 
 
 class Risk(Base):
@@ -35,6 +42,17 @@ class Risk(Base):
     # Stores a list of tag strings, e.g. ["cloud", "access-control"].
     tags: Mapped[list[str] | None] = mapped_column(JSON)
     review_date: Mapped[date | None] = mapped_column(Date)
+
+    # Integer scoring — auto-derived from string fields in the router
+    likelihood_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=3)
+    impact_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=3)
+    risk_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=9)
+
+    # Residual risk (populated post-treatment)
+    residual_likelihood_score: Mapped[int | None] = mapped_column(Integer())
+    residual_impact_score: Mapped[int | None] = mapped_column(Integer())
+    residual_risk_score: Mapped[int | None] = mapped_column(Integer())
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

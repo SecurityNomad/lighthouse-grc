@@ -15,7 +15,8 @@ from sqlalchemy.pool import NullPool, StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.seed import seed_frameworks
+from app.seed import seed_frameworks, seed_vendor_questions
+from app import models as _models  # noqa: F401 — ensures all tables are registered
 
 # ---------------------------------------------------------------------------
 # CI passes TEST_DATABASE_URL pointing at the Postgres service container.
@@ -40,6 +41,8 @@ async def engine():
         await conn.run_sync(Base.metadata.create_all)
     async with async_sessionmaker(_engine, expire_on_commit=False)() as session:
         await seed_frameworks(session)
+    async with async_sessionmaker(_engine, expire_on_commit=False)() as session:
+        await seed_vendor_questions(session)
     yield _engine
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

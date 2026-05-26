@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models.risk import Risk
+from app.models.risk import Risk, IMPACT_SCORE_MAP, LIKELIHOOD_SCORE_MAP
 from app.schemas.risk import RiskCreate, RiskRead, RiskUpdate
 
 router = APIRouter()
@@ -26,6 +26,11 @@ async def list_risks(
 @router.post("/", response_model=RiskRead, status_code=status.HTTP_201_CREATED)
 async def create_risk(risk_in: RiskCreate, db: AsyncSession = Depends(get_db)):
     risk = Risk(**risk_in.model_dump())
+    risk.impact_score = IMPACT_SCORE_MAP.get(risk_in.impact, 3)
+    risk.likelihood_score = LIKELIHOOD_SCORE_MAP.get(risk_in.likelihood, 3)
+    risk.risk_score = risk.impact_score * risk.likelihood_score
+    if risk.residual_impact_score and risk.residual_likelihood_score:
+        risk.residual_risk_score = risk.residual_impact_score * risk.residual_likelihood_score
     db.add(risk)
     await db.commit()
     await db.refresh(risk)
@@ -51,6 +56,11 @@ async def update_risk(
         raise HTTPException(status_code=404, detail="Risk not found")
     for field, value in risk_in.model_dump(exclude_unset=True).items():
         setattr(risk, field, value)
+    risk.impact_score = IMPACT_SCORE_MAP.get(risk.impact, 3)
+    risk.likelihood_score = LIKELIHOOD_SCORE_MAP.get(risk.likelihood, 3)
+    risk.risk_score = risk.impact_score * risk.likelihood_score
+    if risk.residual_impact_score and risk.residual_likelihood_score:
+        risk.residual_risk_score = risk.residual_impact_score * risk.residual_likelihood_score
     await db.commit()
     await db.refresh(risk)
     return risk

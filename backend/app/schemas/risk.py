@@ -17,6 +17,12 @@ class RiskBase(BaseModel):
     status: str = "Open"
     tags: Optional[List[str]] = None
     review_date: Optional[date] = None
+    likelihood_score: int = 3
+    impact_score: int = 3
+    risk_score: int = 9
+    residual_likelihood_score: Optional[int] = None
+    residual_impact_score: Optional[int] = None
+    residual_risk_score: Optional[int] = None
 
 
 class RiskCreate(RiskBase):

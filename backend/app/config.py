@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     environment: str = "development"
+    upload_dir: str = "/app/uploads"
 
     class Config:
         env_file = ".env"
