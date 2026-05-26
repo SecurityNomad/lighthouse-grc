@@ -10,9 +10,7 @@ class Settings(BaseSettings):
     upload_dir: str = "/app/uploads"
     seed_demo_data: bool = False
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
 settings = Settings()

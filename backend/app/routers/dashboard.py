@@ -34,15 +34,17 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)):
     )
     high_risks_open = high_result.scalar() or 0
 
-    # 3. Control coverage % -- controls with at least one mapped risk
-    total_controls_result = await db.execute(select(func.count(Control.id)))
-    total_controls = total_controls_result.scalar() or 0
-
-    mapped_controls_result = await db.execute(
-        select(func.count(func.distinct(RiskControl.control_id)))
+    # 3. Control coverage % -- risks with at least one control mapped / total active risks
+    total_risks_result = await db.execute(
+        select(func.count(Risk.id)).where(Risk.status.notin_(["Closed", "Accepted"]))
     )
-    mapped_controls = mapped_controls_result.scalar() or 0
-    control_coverage_pct = round((mapped_controls / total_controls * 100), 1) if total_controls > 0 else 0.0
+    total_active_risks = total_risks_result.scalar() or 0
+
+    covered_risks_result = await db.execute(
+        select(func.count(func.distinct(RiskControl.risk_id)))
+    )
+    covered_risks = covered_risks_result.scalar() or 0
+    control_coverage_pct = round((covered_risks / total_active_risks * 100), 1) if total_active_risks > 0 else 0.0
 
     # 4. Evidence expiry counts (computed in Python from expiry_date)
     evidence_result = await db.execute(
@@ -52,10 +54,10 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)):
     evidence_expiring_soon = sum(1 for e in evidence_items if e.status == "Expiring")
     evidence_expired = sum(1 for e in evidence_items if e.status == "Expired")
 
-    # 5. Vendors by tier
+    # 5. Vendors by tier (all non-offboarded)
     tier_result = await db.execute(
         select(Vendor.tier, func.count(Vendor.id))
-        .where(Vendor.status == "Active")
+        .where(Vendor.status != "Offboarded")
         .group_by(Vendor.tier)
         .order_by(Vendor.tier)
     )
