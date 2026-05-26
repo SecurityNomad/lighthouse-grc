@@ -2,15 +2,12 @@ import type { ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import RisksPage from './pages/RisksPage'
 import ControlsPage from './pages/ControlsPage'
+import EvidencePage from './pages/EvidencePage'
+import VendorsPage from './pages/VendorsPage'
+import AuditPage from './pages/AuditPage'
+import DashboardPage from './pages/DashboardPage'
 
-function NavItem({ to, label, disabled = false }: { to: string; label: string; disabled?: boolean }) {
-  if (disabled) {
-    return (
-      <span className="px-3 py-2 text-sm text-gray-400 cursor-not-allowed">
-        {label}
-      </span>
-    )
-  }
+function NavItem({ to, label }: { to: string; label: string }) {
   return (
     <NavLink
       to={to}
@@ -39,9 +36,10 @@ function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-1 ml-4">
           <NavItem to="/risks" label="Risk Register" />
           <NavItem to="/controls" label="Controls" />
-          <NavItem to="/vendors" label="Vendors" disabled />
-          <NavItem to="/audits" label="Audits" disabled />
-          <NavItem to="/dashboard" label="Dashboard" disabled />
+          <NavItem to="/evidence" label="Evidence" />
+          <NavItem to="/vendors" label="Vendors" />
+          <NavItem to="/audits" label="Audits" />
+          <NavItem to="/dashboard" label="Dashboard" />
         </div>
       </nav>
       <main className="flex-1 px-6 py-6">
@@ -56,9 +54,13 @@ function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<RisksPage />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/risks" element={<RisksPage />} />
           <Route path="/controls" element={<ControlsPage />} />
+          <Route path="/evidence" element={<EvidencePage />} />
+          <Route path="/vendors" element={<VendorsPage />} />
+          <Route path="/audits" element={<AuditPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>
