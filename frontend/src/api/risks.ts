@@ -28,9 +28,9 @@ export type RiskUpdate = Partial<RiskCreate>
 
 export const risksApi = {
   list: (status?: string) =>
-    api.get<Risk[]>('/risks', { params: status ? { status } : {} }).then(r => r.data),
+    api.get<Risk[]>('/risks/', { params: status ? { status } : {} }).then(r => r.data),
   get: (id: string) => api.get<Risk>(`/risks/${id}`).then(r => r.data),
-  create: (data: RiskCreate) => api.post<Risk>('/risks', data).then(r => r.data),
+  create: (data: RiskCreate) => api.post<Risk>('/risks/', data).then(r => r.data),
   update: (id: string, data: RiskUpdate) => api.put<Risk>(`/risks/${id}`, data).then(r => r.data),
   delete: (id: string) => api.delete(`/risks/${id}`),
 }

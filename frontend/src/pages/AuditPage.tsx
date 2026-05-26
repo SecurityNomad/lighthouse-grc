@@ -138,7 +138,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
 
   const updateItemMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { test_result: string } }) =>
-      auditsApi.updateItem(id, data),
+      auditsApi.updateItem(plan.id, id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['auditItems', plan.id] })
       qc.invalidateQueries({ queryKey: ['auditPlans'] })
@@ -146,12 +146,12 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
   })
 
   const deleteItemMut = useMutation({
-    mutationFn: auditsApi.deleteItem,
+    mutationFn: (id: string) => auditsApi.deleteItem(plan.id, id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['auditItems', plan.id] }),
   })
 
   const deleteFindingMut = useMutation({
-    mutationFn: auditsApi.deleteFinding,
+    mutationFn: (id: string) => auditsApi.deleteFinding(plan.id, id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['auditFindings', plan.id] }),
   })
 

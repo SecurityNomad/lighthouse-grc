@@ -58,16 +58,16 @@ export type AuditFindingCreate = Omit<AuditFinding, 'id' | 'created_at' | 'updat
 export type AuditFindingUpdate = Partial<Omit<AuditFinding, 'id' | 'plan_id' | 'created_at' | 'updated_at'>>
 
 export const auditsApi = {
-  listPlans: () => api.get<AuditPlanSummary[]>('/audit-plans').then(r => r.data),
-  createPlan: (data: AuditPlanCreate) => api.post<AuditPlan>('/audit-plans', data).then(r => r.data),
-  updatePlan: (id: string, data: AuditPlanUpdate) => api.put<AuditPlan>(`/audit-plans/${id}`, data).then(r => r.data),
-  deletePlan: (id: string) => api.delete(`/audit-plans/${id}`),
-  listItems: (planId: string) => api.get<AuditItem[]>(`/audit-plans/${planId}/items`).then(r => r.data),
-  createItem: (data: AuditItemCreate) => api.post<AuditItem>('/audit-items', data).then(r => r.data),
-  updateItem: (id: string, data: AuditItemUpdate) => api.put<AuditItem>(`/audit-items/${id}`, data).then(r => r.data),
-  deleteItem: (id: string) => api.delete(`/audit-items/${id}`),
-  listFindings: (planId: string) => api.get<AuditFinding[]>(`/audit-plans/${planId}/findings`).then(r => r.data),
-  createFinding: (data: AuditFindingCreate) => api.post<AuditFinding>('/audit-findings', data).then(r => r.data),
-  updateFinding: (id: string, data: AuditFindingUpdate) => api.put<AuditFinding>(`/audit-findings/${id}`, data).then(r => r.data),
-  deleteFinding: (id: string) => api.delete(`/audit-findings/${id}`),
+  listPlans: () => api.get<AuditPlanSummary[]>('/audits').then(r => r.data),
+  createPlan: (data: AuditPlanCreate) => api.post<AuditPlan>('/audits', data).then(r => r.data),
+  updatePlan: (id: string, data: AuditPlanUpdate) => api.put<AuditPlan>(`/audits/${id}`, data).then(r => r.data),
+  deletePlan: (id: string) => api.delete(`/audits/${id}`),
+  listItems: (planId: string) => api.get<AuditItem[]>(`/audits/${planId}/items`).then(r => r.data),
+  createItem: (data: AuditItemCreate) => api.post<AuditItem>(`/audits/${data.plan_id}/items`, data).then(r => r.data),
+  updateItem: (planId: string, id: string, data: AuditItemUpdate) => api.put<AuditItem>(`/audits/${planId}/items/${id}`, data).then(r => r.data),
+  deleteItem: (planId: string, id: string) => api.delete(`/audits/${planId}/items/${id}`),
+  listFindings: (planId: string) => api.get<AuditFinding[]>(`/audits/${planId}/findings`).then(r => r.data),
+  createFinding: (data: AuditFindingCreate) => api.post<AuditFinding>(`/audits/${data.plan_id}/findings`, data).then(r => r.data),
+  updateFinding: (planId: string, id: string, data: AuditFindingUpdate) => api.put<AuditFinding>(`/audits/${planId}/findings/${id}`, data).then(r => r.data),
+  deleteFinding: (planId: string, id: string) => api.delete(`/audits/${planId}/findings/${id}`),
 }

@@ -23,10 +23,10 @@ export type EvidenceUpdate = {
 }
 
 export const evidenceApi = {
-  list: () => api.get<Evidence[]>('/evidence').then(r => r.data),
+  list: () => api.get<Evidence[]>('/evidence/').then(r => r.data),
   get: (id: string) => api.get<Evidence>(`/evidence/${id}`).then(r => r.data),
   upload: (formData: FormData) =>
-    api.post<Evidence>('/evidence', formData, {
+    api.post<Evidence>('/evidence/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then(r => r.data),
   update: (id: string, data: EvidenceUpdate) =>
