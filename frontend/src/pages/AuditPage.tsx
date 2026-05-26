@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { auditsApi, type AuditPlanSummary, type AuditPlanCreate, type AuditItem, type AuditFinding } from '../api/audit'
+import { auditsApi, type AuditPlanSummary, type AuditPlanCreate } from '../api/audit'
 import { useForm } from 'react-hook-form'
 
 const PLAN_STATUS_COLORS: Record<string, string> = {
@@ -312,7 +312,7 @@ function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void
 
 function AddFindingModal({ planId, onClose }: { planId: string; onClose: () => void }) {
   const qc = useQueryClient()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm<{
     title: string; description: string; severity: string; owner?: string; due_date?: string
   }>({ defaultValues: { severity: 'Medium' } })
   const createMut = useMutation({
