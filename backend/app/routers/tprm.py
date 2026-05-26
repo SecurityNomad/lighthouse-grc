@@ -58,6 +58,46 @@ async def _compute_overall_score(assessment_id: uuid.UUID, db: AsyncSession) -> 
 
 # -- Vendors -------------------------------------------------------------------
 
+@router.get("/vendors/risk-ratings", response_model=List[VendorRiskRating])
+async def list_vendor_risk_ratings(db: AsyncSession = Depends(get_db)):
+    """Return every vendor with its most recent completed assessment score."""
+    vendors_result = await db.execute(select(Vendor).order_by(Vendor.name))
+    vendors = vendors_result.scalars().all()
+
+    # Fetch latest Complete assessment per vendor in one query
+    from sqlalchemy import func as sqlfunc
+    sub = (
+        select(
+            VendorAssessment.vendor_id,
+            sqlfunc.max(VendorAssessment.updated_at).label("latest_at"),
+        )
+        .where(VendorAssessment.status == "Complete")
+        .group_by(VendorAssessment.vendor_id)
+        .subquery()
+    )
+    assessments_result = await db.execute(
+        select(VendorAssessment).join(
+            sub,
+            (VendorAssessment.vendor_id == sub.c.vendor_id)
+            & (VendorAssessment.updated_at == sub.c.latest_at),
+        )
+    )
+    assessment_map = {a.vendor_id: a for a in assessments_result.scalars().all()}
+
+    return [
+        VendorRiskRating(
+            vendor_id=v.id,
+            vendor_name=v.name,
+            tier=v.tier,
+            overall_score=assessment_map[v.id].overall_score if v.id in assessment_map else None,
+            risk_rating=_compute_rating(assessment_map[v.id].overall_score if v.id in assessment_map else None),
+            assessment_id=assessment_map[v.id].id if v.id in assessment_map else None,
+            assessed_at=assessment_map[v.id].updated_at if v.id in assessment_map else None,
+        )
+        for v in vendors
+    ]
+
+
 @router.get("/vendors", response_model=List[VendorRead])
 async def list_vendors(
     status_filter: Optional[str] = Query(None, alias="status"),

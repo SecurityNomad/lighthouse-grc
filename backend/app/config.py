@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     environment: str = "development"
     upload_dir: str = "/app/uploads"
+    seed_demo_data: bool = False
 
     class Config:
         env_file = ".env"

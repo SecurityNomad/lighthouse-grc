@@ -8,6 +8,7 @@ from app.config import settings
 from app.database import AsyncSessionLocal
 from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard
 from app.seed import seed_frameworks, seed_vendor_questions
+from app.seed_demo import seed_demo_data
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,12 @@ async def lifespan(app: FastAPI):
             await seed_vendor_questions(session)
         except Exception:
             logger.exception("Vendor question seeding failed — continuing startup")
+    if settings.seed_demo_data:
+        async with AsyncSessionLocal() as session:
+            try:
+                await seed_demo_data(session)
+            except Exception:
+                logger.exception("Demo data seeding failed — continuing startup")
     yield
 
 
