@@ -10,6 +10,7 @@ import VendorsPage from './pages/VendorsPage'
 import AuditPage from './pages/AuditPage'
 import DashboardPage from './pages/DashboardPage'
 import ClientsPage from './pages/ClientsPage'
+import AdminPage from './pages/AdminPage'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth()
@@ -58,6 +59,7 @@ export default function App() {
                   <Route path="/vendors" element={<VendorsPage />} />
                   <Route path="/audits" element={<AuditPage />} />
                   <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
                 </Routes>
               </AppLayout>
             </ProtectedRoute>

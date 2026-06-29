@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Shield, BookOpen, FileCheck, Building2,
-  ClipboardList, Users, ChevronLeft, ChevronRight, Sun, Moon, LogOut,
+  ClipboardList, Users, ChevronLeft, ChevronRight, Sun, Moon, LogOut, Settings,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useClient } from '../contexts/ClientContext'
@@ -98,6 +98,21 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
           </NavLink>
         ))}
       </nav>
+
+      {/* Admin / Account link */}
+      <NavLink
+        to="/admin"
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-3 py-2 mx-2 my-0.5 rounded-md text-sm transition-colors ${
+            isActive
+              ? 'bg-indigo-600 text-white'
+              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+          }`
+        }
+      >
+        <Settings size={18} className="shrink-0" />
+        {!collapsed && <span className="truncate">{user?.role === 'admin' ? 'Admin' : 'My Account'}</span>}
+      </NavLink>
 
       {/* Bottom: dark mode + user + logout */}
       <div className="border-t border-slate-700 p-3 space-y-1">

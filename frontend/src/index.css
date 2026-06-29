@@ -169,7 +169,8 @@ body {
     @apply px-6 py-4 flex justify-end gap-3;
   }
   .modal-title {
-    @apply text-base font-semibold text-slate-900 dark:text-slate-100 font-display;
+    @apply text-base font-semibold text-slate-900 dark:text-slate-100;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
   }
   .modal-cancel {
     @apply neu-btn;
