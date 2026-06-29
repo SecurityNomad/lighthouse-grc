@@ -30,6 +30,6 @@ export const evidenceApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then(r => r.data),
   update: (id: string, data: EvidenceUpdate) =>
-    api.put<Evidence>(`/evidence/${id}`, data).then(r => r.data),
+    api.patch<Evidence>(`/evidence/${id}`, data).then(r => r.data),
   delete: (id: string) => api.delete(`/evidence/${id}`),
 }

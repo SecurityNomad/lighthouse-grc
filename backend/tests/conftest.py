@@ -6,7 +6,13 @@ Set TEST_DATABASE_URL in the environment to target PostgreSQL instead
 (used in CI where a Postgres service is already running).
 """
 import os
+import tempfile
 from typing import AsyncGenerator
+
+# Point the upload dir to a temp location before any app module is imported
+# so the evidence router writes files to a writable path during tests.
+_TEST_UPLOAD_DIR = tempfile.mkdtemp(prefix="lighthouse_test_uploads_")
+os.environ.setdefault("UPLOAD_DIR", _TEST_UPLOAD_DIR)
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient

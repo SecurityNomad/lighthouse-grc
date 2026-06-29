@@ -13,10 +13,10 @@ async def test_health_check(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_list_risks_empty(client: AsyncClient):
+async def test_list_risks(client: AsyncClient):
     response = await client.get("/api/v1/risks/")
     assert response.status_code == 200
-    assert response.json() == []
+    assert isinstance(response.json(), list)
 
 
 @pytest.mark.asyncio

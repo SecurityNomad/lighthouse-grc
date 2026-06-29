@@ -5,6 +5,7 @@ interface RiskTableProps {
   isLoading: boolean
   onEdit: (risk: Risk) => void
   onDelete: (risk: Risk) => void
+  onMapControls: (risk: Risk) => void
 }
 
 const impactBadge: Record<string, string> = {
@@ -41,13 +42,13 @@ function SkeletonRow() {
   )
 }
 
-export default function RiskTable({ risks, isLoading, onEdit, onDelete }: RiskTableProps) {
+export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapControls }: RiskTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            {['Title', 'Impact', 'Likelihood', 'Treatment', 'Owner', 'Status', 'Review Date', ''].map(
+            {['Title', 'Impact', 'Likelihood', 'Treatment', 'Owner', 'Status', 'Review Date', 'Controls', ''].map(
               (col, i) => (
                 <th
                   key={i}
@@ -68,7 +69,7 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete }: RiskTa
             </>
           ) : risks.length === 0 ? (
             <tr>
-              <td colSpan={8} className="px-4 py-16 text-center">
+              <td colSpan={9} className="px-4 py-16 text-center">
                 <div className="flex flex-col items-center gap-3 text-gray-400">
                   <span className="text-4xl" role="img" aria-label="shield">🛡️</span>
                   <p className="text-sm font-medium">No risks recorded yet</p>
@@ -106,6 +107,14 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete }: RiskTa
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                   {risk.review_date ?? <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <button
+                    onClick={() => onMapControls(risk)}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors"
+                  >
+                    Map Controls
+                  </button>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

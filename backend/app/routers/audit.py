@@ -1,4 +1,5 @@
 import uuid
+from collections import defaultdict
 from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -19,7 +20,7 @@ router = APIRouter()
 
 # -- Plans ---------------------------------------------------------------------
 
-@router.get("/audits", response_model=List[AuditPlanRead])
+@router.get("/audits", response_model=List[AuditPlanSummary])
 async def list_plans(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: AsyncSession = Depends(get_db),
@@ -28,7 +29,45 @@ async def list_plans(
     if status_filter:
         query = query.where(AuditPlan.status == status_filter)
     result = await db.execute(query)
-    return result.scalars().all()
+    plans = result.scalars().all()
+
+    if not plans:
+        return []
+
+    plan_ids = [p.id for p in plans]
+
+    all_items_result = await db.execute(
+        select(AuditItem).where(AuditItem.plan_id.in_(plan_ids))
+    )
+    plan_items: dict = defaultdict(list)
+    for item in all_items_result.scalars().all():
+        plan_items[item.plan_id].append(item)
+
+    open_findings_result = await db.execute(
+        select(AuditFinding.plan_id, func.count(AuditFinding.id))
+        .where(
+            AuditFinding.plan_id.in_(plan_ids),
+            AuditFinding.status.in_(["Open", "In Remediation"]),
+        )
+        .group_by(AuditFinding.plan_id)
+    )
+    open_findings_map = dict(open_findings_result.all())
+
+    summaries = []
+    for plan in plans:
+        items = plan_items[plan.id]
+        summaries.append(
+            AuditPlanSummary(
+                **AuditPlanRead.model_validate(plan).model_dump(),
+                item_count=len(items),
+                pass_count=sum(1 for i in items if i.test_result == "Pass"),
+                fail_count=sum(1 for i in items if i.test_result == "Fail"),
+                exception_count=sum(1 for i in items if i.test_result == "Exception"),
+                not_tested_count=sum(1 for i in items if i.test_result == "Not Tested"),
+                open_findings=open_findings_map.get(plan.id, 0),
+            )
+        )
+    return summaries
 
 
 @router.post("/audits", response_model=AuditPlanRead, status_code=status.HTTP_201_CREATED)

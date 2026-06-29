@@ -71,6 +71,6 @@ export const vendorsApi = {
     api.post<VendorAssessment>('/vendor-assessments', { vendor_id: vendorId }).then(r => r.data),
   submitAnswers: (assessmentId: string, answers: VendorAnswerUpsert[]) =>
     api.put(`/vendor-assessments/${assessmentId}/answers`, answers).then(r => r.data),
-  scoreAssessment: (assessmentId: string) =>
-    api.post(`/vendor-assessments/${assessmentId}/score`).then(r => r.data),
+  completeAssessment: (assessmentId: string) =>
+    api.patch<VendorAssessment>(`/vendor-assessments/${assessmentId}`, { status: 'Complete' }).then(r => r.data),
 }

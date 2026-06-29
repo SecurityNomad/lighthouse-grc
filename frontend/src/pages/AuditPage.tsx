@@ -150,6 +150,16 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
     onSuccess: () => qc.invalidateQueries({ queryKey: ['auditItems', plan.id] }),
   })
 
+  const updateFindingMut = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      auditsApi.updateFinding(plan.id, id, { status }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['auditFindings', plan.id] })
+      qc.invalidateQueries({ queryKey: ['auditPlans'] })
+      qc.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+
   const deleteFindingMut = useMutation({
     mutationFn: (id: string) => auditsApi.deleteFinding(plan.id, id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['auditFindings', plan.id] }),
@@ -246,9 +256,17 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${FINDING_SEVERITY_COLORS[f.severity] ?? 'text-gray-600 bg-gray-50'}`}>
                         {f.severity}
                       </span>
-                      <span className={`text-xs font-medium ${f.status === 'Open' ? 'text-red-600' : f.status === 'Remediated' ? 'text-green-700' : 'text-gray-500'}`}>
-                        {f.status}
-                      </span>
+                      <select
+                        value={f.status}
+                        onChange={e => updateFindingMut.mutate({ id: f.id, status: e.target.value })}
+                        className={`text-xs font-medium border-0 bg-transparent focus:outline-none cursor-pointer ${
+                          f.status === 'Open' ? 'text-red-600' : f.status === 'Closed' ? 'text-green-700' : 'text-orange-600'
+                        }`}
+                      >
+                        <option>Open</option>
+                        <option>In Remediation</option>
+                        <option>Closed</option>
+                      </select>
                     </div>
                     <p className="text-sm font-medium text-gray-900">{f.title}</p>
                     <p className="text-xs text-gray-500 mt-1">{f.description}</p>

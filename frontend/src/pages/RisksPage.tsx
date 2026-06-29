@@ -4,6 +4,7 @@ import { risksApi, type Risk } from '../api/risks'
 import RiskTable from '../components/RiskTable'
 import RiskModal from '../components/RiskModal'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import ControlMappingModal from '../components/ControlMappingModal'
 
 const STATUSES = ['All', 'Open', 'In Treatment', 'Closed', 'Accepted'] as const
 
@@ -12,6 +13,7 @@ export default function RisksPage() {
   const [addOpen, setAddOpen] = useState(false)
   const [editRisk, setEditRisk] = useState<Risk | null>(null)
   const [deleteRisk, setDeleteRisk] = useState<Risk | null>(null)
+  const [mappingRisk, setMappingRisk] = useState<Risk | null>(null)
 
   const { data: risks = [], isLoading } = useQuery({
     queryKey: ['risks', statusFilter],
@@ -60,18 +62,15 @@ export default function RisksPage() {
             isLoading={isLoading}
             onEdit={setEditRisk}
             onDelete={setDeleteRisk}
+            onMapControls={setMappingRisk}
           />
         </div>
       </div>
 
-      {/* Add modal */}
       {addOpen && <RiskModal onClose={() => setAddOpen(false)} />}
-
-      {/* Edit modal */}
       {editRisk && <RiskModal risk={editRisk} onClose={() => setEditRisk(null)} />}
-
-      {/* Delete confirm */}
       {deleteRisk && <DeleteConfirmModal risk={deleteRisk} onClose={() => setDeleteRisk(null)} />}
+      {mappingRisk && <ControlMappingModal risk={mappingRisk} onClose={() => setMappingRisk(null)} />}
     </>
   )
 }
