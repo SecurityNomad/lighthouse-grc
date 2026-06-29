@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from sqlalchemy import String, Text, Date, DateTime, JSON, Uuid, Integer, func
+from sqlalchemy import String, Text, Date, DateTime, JSON, Uuid, Integer, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
@@ -42,6 +42,9 @@ class Risk(Base):
     # Stores a list of tag strings, e.g. ["cloud", "access-control"].
     tags: Mapped[list[str] | None] = mapped_column(JSON)
     review_date: Mapped[date | None] = mapped_column(Date)
+    client_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("clients.id", ondelete="SET NULL"), nullable=True
+    )
 
     # Integer scoring — auto-derived from string fields in the router
     likelihood_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=3)

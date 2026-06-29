@@ -1,6 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: '/api/v1' })
+import api from './client'
 
 export interface Evidence {
   id: string

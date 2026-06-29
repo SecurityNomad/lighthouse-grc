@@ -103,6 +103,7 @@ async def list_vendors(
     status_filter: Optional[str] = Query(None, alias="status"),
     tier: Optional[int] = Query(None),
     category: Optional[str] = Query(None),
+    client_id: Optional[uuid.UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Vendor).order_by(Vendor.name)
@@ -112,13 +113,19 @@ async def list_vendors(
         query = query.where(Vendor.tier == tier)
     if category:
         query = query.where(Vendor.category == category)
+    if client_id:
+        query = query.where(Vendor.client_id == client_id)
     result = await db.execute(query)
     return result.scalars().all()
 
 
 @router.post("/vendors", response_model=VendorRead, status_code=status.HTTP_201_CREATED)
-async def create_vendor(body: VendorCreate, db: AsyncSession = Depends(get_db)):
-    vendor = Vendor(**body.model_dump())
+async def create_vendor(
+    body: VendorCreate,
+    client_id: Optional[uuid.UUID] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    vendor = Vendor(**body.model_dump(), client_id=client_id)
     db.add(vendor)
     await db.commit()
     await db.refresh(vendor)

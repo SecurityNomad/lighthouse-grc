@@ -1,9 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: '/api/v1',
-  headers: { 'Content-Type': 'application/json' },
-})
+import api from './client'
 
 export interface DashboardData {
   open_risks_by_impact: { impact: string; count: number }[]

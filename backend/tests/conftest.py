@@ -7,6 +7,7 @@ Set TEST_DATABASE_URL in the environment to target PostgreSQL instead
 """
 import os
 import tempfile
+import uuid
 from typing import AsyncGenerator
 
 # Point the upload dir to a temp location before any app module is imported
@@ -21,6 +22,8 @@ from sqlalchemy.pool import NullPool, StaticPool
 
 from app.database import Base, get_db
 from app.main import app
+from app.auth import get_current_user
+from app.models.user import User
 from app.seed import seed_frameworks, seed_vendor_questions
 from app import models as _models  # noqa: F401 — ensures all tables are registered
 
@@ -65,12 +68,23 @@ async def db_session(engine) -> AsyncGenerator[AsyncSession, None]:
 
 @pytest_asyncio.fixture()
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    """HTTP test client with the DB dependency overridden to use the test session."""
+    """HTTP test client with DB and auth dependencies overridden."""
 
     async def override_get_db():
         yield db_session
 
+    async def override_get_current_user():
+        return User(
+            id=uuid.uuid4(),
+            email="test@lighthouse.local",
+            full_name="Test User",
+            hashed_password="",
+            role="admin",
+            is_active=True,
+        )
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

@@ -7,9 +7,13 @@ from app.database import Base
 
 class Vendor(Base):
     __tablename__ = "vendors"
+    __table_args__ = (UniqueConstraint("name", "client_id", name="uq_vendor_name_client"),)
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    client_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("clients.id", ondelete="SET NULL"), nullable=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     category: Mapped[str] = mapped_column(String(50), nullable=False)
     website: Mapped[str | None] = mapped_column(String(512))

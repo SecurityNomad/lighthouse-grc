@@ -26,6 +26,7 @@ async def upload_evidence(
     description: Optional[str] = Form(None),
     control_id: Optional[uuid.UUID] = Form(None),
     expiry_date: Optional[str] = Form(None),
+    client_id: Optional[uuid.UUID] = Form(None),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
@@ -52,6 +53,7 @@ async def upload_evidence(
         title=title,
         description=description,
         control_id=control_id,
+        client_id=client_id,
         file_name=file.filename,
         file_path=str(file_path),
         file_size=file_size,
@@ -68,11 +70,14 @@ async def upload_evidence(
 async def list_evidence(
     control_id: Optional[uuid.UUID] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status"),
+    client_id: Optional[uuid.UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Evidence).order_by(Evidence.uploaded_at.desc())
     if control_id:
         query = query.where(Evidence.control_id == control_id)
+    if client_id:
+        query = query.where(Evidence.client_id == client_id)
     result = await db.execute(query)
     items = result.scalars().all()
     if status_filter:

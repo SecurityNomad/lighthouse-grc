@@ -14,18 +14,25 @@ router = APIRouter()
 @router.get("/", response_model=List[RiskRead])
 async def list_risks(
     status_filter: Optional[str] = Query(None, alias="status"),
+    client_id: Optional[uuid.UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Risk).order_by(Risk.created_at.desc())
     if status_filter:
         query = query.where(Risk.status == status_filter)
+    if client_id:
+        query = query.where(Risk.client_id == client_id)
     result = await db.execute(query)
     return result.scalars().all()
 
 
 @router.post("/", response_model=RiskRead, status_code=status.HTTP_201_CREATED)
-async def create_risk(risk_in: RiskCreate, db: AsyncSession = Depends(get_db)):
-    risk = Risk(**risk_in.model_dump())
+async def create_risk(
+    risk_in: RiskCreate,
+    client_id: Optional[uuid.UUID] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    risk = Risk(**risk_in.model_dump(), client_id=client_id)
     risk.impact_score = IMPACT_SCORE_MAP.get(risk_in.impact, 3)
     risk.likelihood_score = LIKELIHOOD_SCORE_MAP.get(risk_in.likelihood, 3)
     risk.risk_score = risk.impact_score * risk.likelihood_score

@@ -1,70 +1,69 @@
-import type { ReactNode } from 'react'
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { useState, useEffect, type ReactNode } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './contexts/AuthContext'
+import Sidebar from './components/Sidebar'
+import LoginPage from './pages/LoginPage'
 import RisksPage from './pages/RisksPage'
 import ControlsPage from './pages/ControlsPage'
 import EvidencePage from './pages/EvidencePage'
 import VendorsPage from './pages/VendorsPage'
 import AuditPage from './pages/AuditPage'
 import DashboardPage from './pages/DashboardPage'
+import ClientsPage from './pages/ClientsPage'
 
-function NavItem({ to, label }: { to: string; label: string }) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `px-3 py-2 text-sm rounded-md transition-colors ${
-          isActive
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-600 hover:bg-gray-100'
-        }`
-      }
-    >
-      {label}
-    </NavLink>
-  )
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useAuth()
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  return <>{children}</>
 }
 
-function Layout({ children }: { children: ReactNode }) {
+function AppLayout({ children }: { children: ReactNode }) {
+  const [dark, setDark] = useState(() => localStorage.getItem('lh_dark') === 'true')
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('lh_dark', String(dark))
+  }, [dark])
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🏠</span>
-          <span className="font-semibold text-gray-900">Lighthouse</span>
-          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">GRC</span>
-        </div>
-        <div className="flex items-center gap-1 ml-4">
-          <NavItem to="/risks" label="Risk Register" />
-          <NavItem to="/controls" label="Controls" />
-          <NavItem to="/evidence" label="Evidence" />
-          <NavItem to="/vendors" label="Vendors" />
-          <NavItem to="/audits" label="Audits" />
-          <NavItem to="/dashboard" label="Dashboard" />
-        </div>
-      </nav>
-      <main className="flex-1 px-6 py-6">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-900">
+      <Sidebar dark={dark} onToggleDark={() => setDark(d => !d)} />
+      <main className="flex-1 overflow-auto p-6">
         {children}
       </main>
     </div>
   )
 }
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/risks" element={<RisksPage />} />
-          <Route path="/controls" element={<ControlsPage />} />
-          <Route path="/evidence" element={<EvidencePage />} />
-          <Route path="/vendors" element={<VendorsPage />} />
-          <Route path="/audits" element={<AuditPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Routes>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/risks" element={<RisksPage />} />
+                  <Route path="/controls" element={<ControlsPage />} />
+                  <Route path="/evidence" element={<EvidencePage />} />
+                  <Route path="/vendors" element={<VendorsPage />} />
+                  <Route path="/audits" element={<AuditPage />} />
+                  <Route path="/clients" element={<ClientsPage />} />
+                </Routes>
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   )
 }
-
-export default App

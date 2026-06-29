@@ -2,7 +2,8 @@
 Framework seeder — loads YAML files from backend/frameworks/ into the database.
 Idempotent: skips any framework whose slug already exists.
 
-Also seeds the 18 standard TPRM vendor questions (idempotent by ref).
+Also seeds the 18 standard TPRM vendor questions (idempotent by ref) and
+the default admin user (idempotent by email).
 """
 import logging
 from pathlib import Path
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.control import Control, Framework
 from app.models.tprm import VendorQuestion
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -228,3 +230,25 @@ async def seed_vendor_questions(session: AsyncSession) -> None:
 
     await session.commit()
     logger.info("Vendor question seeding complete")
+
+
+async def seed_admin_user(session: AsyncSession) -> None:
+    """Idempotently create the default admin account on first startup."""
+    from app.auth import hash_password
+
+    ADMIN_EMAIL = "admin@lighthouse.local"
+    result = await session.execute(select(User).where(User.email == ADMIN_EMAIL))
+    if result.scalar_one_or_none():
+        logger.debug("Admin user already present — skipping")
+        return
+
+    admin = User(
+        email=ADMIN_EMAIL,
+        full_name="Admin",
+        hashed_password=hash_password("changeme"),
+        role="admin",
+        is_active=True,
+    )
+    session.add(admin)
+    await session.commit()
+    logger.info("Default admin user created: %s / changeme", ADMIN_EMAIL)

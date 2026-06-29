@@ -23,11 +23,14 @@ router = APIRouter()
 @router.get("/audits", response_model=List[AuditPlanSummary])
 async def list_plans(
     status_filter: Optional[str] = Query(None, alias="status"),
+    client_id: Optional[uuid.UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(AuditPlan).order_by(AuditPlan.created_at.desc())
     if status_filter:
         query = query.where(AuditPlan.status == status_filter)
+    if client_id:
+        query = query.where(AuditPlan.client_id == client_id)
     result = await db.execute(query)
     plans = result.scalars().all()
 
@@ -71,8 +74,12 @@ async def list_plans(
 
 
 @router.post("/audits", response_model=AuditPlanRead, status_code=status.HTTP_201_CREATED)
-async def create_plan(body: AuditPlanCreate, db: AsyncSession = Depends(get_db)):
-    plan = AuditPlan(**body.model_dump())
+async def create_plan(
+    body: AuditPlanCreate,
+    client_id: Optional[uuid.UUID] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    plan = AuditPlan(**body.model_dump(), client_id=client_id)
     db.add(plan)
     await db.commit()
     await db.refresh(plan)

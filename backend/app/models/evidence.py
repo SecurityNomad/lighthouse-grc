@@ -20,6 +20,9 @@ class Evidence(Base):
     mime_type: Mapped[str] = mapped_column(String(127), nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry_date: Mapped[date | None] = mapped_column(Date)
+    client_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("clients.id", ondelete="SET NULL"), nullable=True
+    )
 
     @property
     def status(self) -> str:
