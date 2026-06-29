@@ -22,55 +22,54 @@ function ClientModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md p-6">
-        <h2 className="font-semibold text-lg text-gray-900 dark:text-white mb-4">
-          {initial.name ? 'Edit Client' : 'New Client'}
-        </h2>
-        <div className="space-y-3">
+    <div className="modal-overlay">
+      <div className="modal-panel max-w-md">
+        <div className="modal-header">
+          <h2 className="modal-title">{initial.name ? 'Edit Client' : 'New Client'}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+        </div>
+        <div className="modal-body">
           <div>
-            <label className="text-sm text-gray-600 dark:text-slate-300 block mb-1">Name *</label>
+            <label className="form-label">Name <span className="text-red-500">*</span></label>
             <input
               value={form.name}
               onChange={e => set('name', e.target.value)}
-              className="w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="neu-input"
             />
           </div>
           <div>
-            <label className="text-sm text-gray-600 dark:text-slate-300 block mb-1">Industry *</label>
+            <label className="form-label">Industry <span className="text-red-500">*</span></label>
             <input
               value={form.industry}
               onChange={e => set('industry', e.target.value)}
               placeholder="e.g. Healthcare, Finance, Airlines"
-              className="w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="neu-input"
             />
           </div>
           <div>
-            <label className="text-sm text-gray-600 dark:text-slate-300 block mb-1">Country</label>
+            <label className="form-label">Country</label>
             <input
               value={form.country ?? ''}
               onChange={e => set('country', e.target.value)}
-              className="w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="neu-input"
             />
           </div>
           <div>
-            <label className="text-sm text-gray-600 dark:text-slate-300 block mb-1">Description</label>
+            <label className="form-label">Description</label>
             <textarea
               value={form.description ?? ''}
               onChange={e => set('description', e.target.value)}
               rows={3}
-              className="w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="neu-input resize-none"
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-white">
-            Cancel
-          </button>
+        <div className="modal-footer">
+          <button onClick={onClose} className="modal-cancel">Cancel</button>
           <button
             onClick={() => onSave(form)}
             disabled={!form.name || !form.industry}
-            className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 disabled:opacity-50"
+            className="btn-primary"
           >
             Save
           </button>
@@ -113,20 +112,18 @@ export default function ClientsPage() {
     }
   }
 
-  if (isLoading) return <div className="text-gray-400">Loading clients…</div>
+  if (isLoading) return <div className="text-slate-400 text-sm">Loading clients…</div>
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Clients</h1>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
-            Manage client engagements — select one to scope all GRC data
-          </p>
+          <h1 className="page-title">Clients</h1>
+          <p className="page-subtitle">Manage client engagements — select one to scope all GRC data</p>
         </div>
         <button
           onClick={() => setModal({ mode: 'create' })}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-500 transition-colors"
+          className="btn-primary flex items-center gap-2"
         >
           <Plus size={16} />
           New Client
@@ -134,9 +131,9 @@ export default function ClientsPage() {
       </div>
 
       {clients.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 dark:text-slate-500">
+        <div className="text-center py-16 text-slate-400 dark:text-slate-500">
           <Building2 size={40} className="mx-auto mb-3 opacity-40" />
-          <p>No clients yet. Create your first client to get started.</p>
+          <p className="text-sm">No clients yet. Create your first client to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -146,10 +143,10 @@ export default function ClientsPage() {
               <div
                 key={client.id}
                 onClick={() => selectClient(isActive ? null : client)}
-                className={`relative rounded-xl p-5 border cursor-pointer transition-all ${
+                className={`neu-card p-5 cursor-pointer transition-all ${
                   isActive
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                    : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600'
+                    ? 'ring-2 ring-indigo-500 dark:ring-indigo-400'
+                    : 'hover:ring-2 hover:ring-indigo-200 dark:hover:ring-indigo-800'
                 }`}
               >
                 {isActive && (
@@ -158,24 +155,26 @@ export default function ClientsPage() {
                   </span>
                 )}
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
-                    <Building2 size={20} className="text-indigo-600 dark:text-indigo-400" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    isActive ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-slate-200 dark:bg-slate-700'
+                  }`}>
+                    <Building2 size={20} className={isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white truncate">{client.name}</h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{client.industry}</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{client.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{client.industry}</p>
                     {client.country && (
-                      <p className="text-xs text-gray-400 dark:text-slate-500">{client.country}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{client.country}</p>
                     )}
                   </div>
                 </div>
                 {client.description && (
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-3 line-clamp-2">{client.description}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 line-clamp-2">{client.description}</p>
                 )}
                 <div className="flex gap-1 mt-3 justify-end" onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => setModal({ mode: 'edit', client })}
-                    className="p-1.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded"
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors"
                   >
                     <Edit2 size={14} />
                   </button>
@@ -186,7 +185,7 @@ export default function ClientsPage() {
                         deleteMut.mutate(client.id)
                       }
                     }}
-                    className="p-1.5 text-gray-400 hover:text-red-500 rounded"
+                    className="p-1.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>

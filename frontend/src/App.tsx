@@ -30,7 +30,7 @@ function AppLayout({ children }: { children: ReactNode }) {
   }, [dark])
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-900">
       <Sidebar dark={dark} onToggleDark={() => setDark(d => !d)} />
       <main className="flex-1 overflow-auto p-6">
         {children}

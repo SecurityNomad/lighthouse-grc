@@ -3,25 +3,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { auditsApi, type AuditPlanSummary, type AuditPlanCreate } from '../api/audit'
 import { useForm } from 'react-hook-form'
 
-const PLAN_STATUS_COLORS: Record<string, string> = {
-  Draft: 'text-gray-600 bg-gray-100',
-  Active: 'text-blue-700 bg-blue-50',
-  Completed: 'text-green-700 bg-green-50',
-  Cancelled: 'text-red-600 bg-red-50',
+const PLAN_STATUS_BADGE: Record<string, string> = {
+  Draft: 'badge-gray',
+  Active: 'badge-blue',
+  Completed: 'badge-green',
+  Cancelled: 'badge-red',
 }
 
-const FINDING_SEVERITY_COLORS: Record<string, string> = {
-  Critical: 'text-red-700 bg-red-50',
-  High: 'text-orange-700 bg-orange-50',
-  Medium: 'text-yellow-700 bg-yellow-50',
-  Low: 'text-green-700 bg-green-50',
+const FINDING_SEVERITY_BADGE: Record<string, string> = {
+  Critical: 'badge-red',
+  High: 'badge-orange',
+  Medium: 'badge-yellow',
+  Low: 'badge-green',
 }
 
 const TEST_RESULT_COLORS: Record<string, string> = {
-  Pass: 'text-green-700',
-  Fail: 'text-red-600',
-  Exception: 'text-orange-600',
-  'Not Tested': 'text-gray-400',
+  Pass: 'text-green-600 dark:text-green-400',
+  Fail: 'text-red-600 dark:text-red-400',
+  Exception: 'text-orange-600 dark:text-orange-400',
+  'Not Tested': 'text-slate-400',
 }
 
 function PlanModal({ plan, onClose }: { plan?: AuditPlanSummary; onClose: () => void }) {
@@ -51,69 +51,142 @@ function PlanModal({ plan, onClose }: { plan?: AuditPlanSummary; onClose: () => 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">{plan ? 'Edit Audit Plan' : 'New Audit Plan'}</h2>
+    <div className="modal-overlay">
+      <div className="modal-panel max-w-md">
+        <div className="modal-header">
+          <h2 className="modal-title">{plan ? 'Edit Audit Plan' : 'New Audit Plan'}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-4 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Title *</label>
-            <input
-              {...register('title', { required: 'Required' })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.title && <p className="text-xs text-red-600 mt-1">{errors.title.message}</p>}
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Scope</label>
-            <textarea
-              {...register('scope')}
-              rows={2}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-            <select
-              {...register('status')}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Draft</option>
-              <option>Active</option>
-              <option>Completed</option>
-              <option>Cancelled</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="modal-body">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
-              <input
-                {...register('audit_start')}
-                type="date"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="form-label">Title <span className="text-red-500">*</span></label>
+              <input {...register('title', { required: 'Required' })} className="neu-input" />
+              {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
-              <input
-                {...register('audit_end')}
-                type="date"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="form-label">Scope</label>
+              <textarea {...register('scope')} rows={2} className="neu-input" />
+            </div>
+            <div>
+              <label className="form-label">Status</label>
+              <select {...register('status')} className="neu-select">
+                <option>Draft</option>
+                <option>Active</option>
+                <option>Completed</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="form-label">Start Date</label>
+                <input {...register('audit_start')} type="date" className="neu-input" />
+              </div>
+              <div>
+                <label className="form-label">End Date</label>
+                <input {...register('audit_end')} type="date" className="neu-input" />
+              </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
-              Cancel
-            </button>
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="modal-cancel">Cancel</button>
             <button
               type="submit"
               disabled={isSubmitting || createMut.isPending || updateMut.isPending}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary"
             >
               {plan ? 'Save Changes' : 'Create Plan'}
             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void }) {
+  const qc = useQueryClient()
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ description: string }>()
+  const createMut = useMutation({
+    mutationFn: (data: { description: string }) =>
+      auditsApi.createItem({ plan_id: planId, description: data.description, test_result: 'Not Tested' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditItems', planId] }); onClose() },
+  })
+  return (
+    <div className="modal-overlay">
+      <div className="modal-panel max-w-md">
+        <div className="modal-header">
+          <h2 className="modal-title">Add Test Item</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+        </div>
+        <form onSubmit={handleSubmit(data => createMut.mutate(data))}>
+          <div className="modal-body">
+            <div>
+              <label className="form-label">Description <span className="text-red-500">*</span></label>
+              <textarea {...register('description', { required: 'Required' })} rows={3} className="neu-input" />
+              {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="modal-cancel">Cancel</button>
+            <button type="submit" disabled={isSubmitting || createMut.isPending} className="btn-primary">Add Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function AddFindingModal({ planId, onClose }: { planId: string; onClose: () => void }) {
+  const qc = useQueryClient()
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm<{
+    title: string; description: string; severity: string; owner?: string; due_date?: string
+  }>({ defaultValues: { severity: 'Medium' } })
+  const createMut = useMutation({
+    mutationFn: (data: { title: string; description: string; severity: string; owner?: string; due_date?: string }) =>
+      auditsApi.createFinding({ plan_id: planId, status: 'Open', ...data }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditFindings', planId] }); onClose() },
+  })
+  return (
+    <div className="modal-overlay">
+      <div className="modal-panel max-w-md">
+        <div className="modal-header">
+          <h2 className="modal-title">Add Finding</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+        </div>
+        <form onSubmit={handleSubmit(data => createMut.mutate(data))}>
+          <div className="modal-body">
+            <div>
+              <label className="form-label">Title <span className="text-red-500">*</span></label>
+              <input {...register('title', { required: 'Required' })} className="neu-input" />
+            </div>
+            <div>
+              <label className="form-label">Description <span className="text-red-500">*</span></label>
+              <textarea {...register('description', { required: 'Required' })} rows={2} className="neu-input" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="form-label">Severity</label>
+                <select {...register('severity')} className="neu-select">
+                  <option>Critical</option>
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </select>
+              </div>
+              <div>
+                <label className="form-label">Due Date</label>
+                <input {...register('due_date')} type="date" className="neu-input" />
+              </div>
+            </div>
+            <div>
+              <label className="form-label">Owner</label>
+              <input {...register('owner')} className="neu-input" />
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="modal-cancel">Cancel</button>
+            <button type="submit" disabled={isSubmitting || createMut.isPending} className="btn-primary">Add Finding</button>
           </div>
         </form>
       </div>
@@ -167,47 +240,50 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-sm text-blue-600 hover:text-blue-800">← Back to Plans</button>
-        <h1 className="text-2xl font-bold text-gray-900">{plan.title}</h1>
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${PLAN_STATUS_COLORS[plan.status] ?? 'text-gray-600 bg-gray-100'}`}>
-          {plan.status}
-        </span>
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          onClick={onBack}
+          className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"
+        >
+          ← Back to Plans
+        </button>
+        <h1 className="page-title">{plan.title}</h1>
+        <span className={`badge ${PLAN_STATUS_BADGE[plan.status] ?? 'badge-gray'}`}>{plan.status}</span>
       </div>
-      {plan.scope && <p className="text-sm text-gray-600">{plan.scope}</p>}
+      {plan.scope && <p className="text-sm text-slate-600 dark:text-slate-400">{plan.scope}</p>}
 
-      {/* Items */}
+      {/* Test Items */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700">Test Items ({items.length})</h2>
+          <h2 className="section-title">Test Items ({items.length})</h2>
           <button
             onClick={() => setAddItem(true)}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-semibold"
           >
             + Add Item
           </button>
         </div>
         {items.length === 0 ? (
-          <p className="text-sm text-gray-400">No test items yet.</p>
+          <p className="text-sm text-slate-400">No test items yet.</p>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+          <div className="neu-table-wrap">
+            <table className="neu-table">
+              <thead>
                 <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Description</th>
-                  <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Result</th>
-                  <th className="px-4 py-2" />
+                  <th>Description</th>
+                  <th>Result</th>
+                  <th />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {items.map(item => (
-                  <tr key={item.id} className="group hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-800">{item.description}</td>
-                    <td className="px-4 py-3">
+                  <tr key={item.id} className="group">
+                    <td className="text-slate-800 dark:text-slate-200">{item.description}</td>
+                    <td>
                       <select
                         value={item.test_result}
                         onChange={e => updateItemMut.mutate({ id: item.id, data: { test_result: e.target.value } })}
-                        className={`text-xs font-medium border-0 bg-transparent focus:outline-none cursor-pointer ${TEST_RESULT_COLORS[item.test_result] ?? 'text-gray-600'}`}
+                        className={`text-xs font-semibold border-0 bg-transparent focus:outline-none cursor-pointer ${TEST_RESULT_COLORS[item.test_result] ?? 'text-slate-600 dark:text-slate-400'}`}
                       >
                         <option>Not Tested</option>
                         <option>Pass</option>
@@ -215,12 +291,10 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                         <option>Exception</option>
                       </select>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <button
-                        onClick={() => {
-                          if (confirm('Delete this item?')) deleteItemMut.mutate(item.id)
-                        }}
-                        className="text-xs text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100"
+                        onClick={() => { if (confirm('Delete this item?')) deleteItemMut.mutate(item.id) }}
+                        className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100"
                       >
                         Delete
                       </button>
@@ -236,31 +310,31 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
       {/* Findings */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700">Findings ({findings.length})</h2>
+          <h2 className="section-title">Findings ({findings.length})</h2>
           <button
             onClick={() => setAddFinding(true)}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-semibold"
           >
             + Add Finding
           </button>
         </div>
         {findings.length === 0 ? (
-          <p className="text-sm text-gray-400">No findings recorded.</p>
+          <p className="text-sm text-slate-400">No findings recorded.</p>
         ) : (
           <div className="space-y-2">
             {findings.map(f => (
-              <div key={f.id} className="bg-white rounded-lg border border-gray-200 p-4 group">
+              <div key={f.id} className="neu-card-sm p-4 group">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${FINDING_SEVERITY_COLORS[f.severity] ?? 'text-gray-600 bg-gray-50'}`}>
+                      <span className={`badge ${FINDING_SEVERITY_BADGE[f.severity] ?? 'badge-gray'}`}>
                         {f.severity}
                       </span>
                       <select
                         value={f.status}
                         onChange={e => updateFindingMut.mutate({ id: f.id, status: e.target.value })}
-                        className={`text-xs font-medium border-0 bg-transparent focus:outline-none cursor-pointer ${
-                          f.status === 'Open' ? 'text-red-600' : f.status === 'Closed' ? 'text-green-700' : 'text-orange-600'
+                        className={`text-xs font-semibold border-0 bg-transparent focus:outline-none cursor-pointer ${
+                          f.status === 'Open' ? 'text-red-600 dark:text-red-400' : f.status === 'Closed' ? 'text-green-700 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'
                         }`}
                       >
                         <option>Open</option>
@@ -268,16 +342,14 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                         <option>Closed</option>
                       </select>
                     </div>
-                    <p className="text-sm font-medium text-gray-900">{f.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">{f.description}</p>
-                    {f.owner && <p className="text-xs text-gray-400 mt-1">Owner: {f.owner}</p>}
-                    {f.due_date && <p className="text-xs text-gray-400">Due: {f.due_date}</p>}
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{f.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{f.description}</p>
+                    {f.owner && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Owner: {f.owner}</p>}
+                    {f.due_date && <p className="text-xs text-slate-400 dark:text-slate-500">Due: {f.due_date}</p>}
                   </div>
                   <button
-                    onClick={() => {
-                      if (confirm('Delete this finding?')) deleteFindingMut.mutate(f.id)
-                    }}
-                    className="text-xs text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100"
+                    onClick={() => { if (confirm('Delete this finding?')) deleteFindingMut.mutate(f.id) }}
+                    className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100"
                   >
                     Delete
                   </button>
@@ -290,111 +362,6 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
 
       {addItem && <AddItemModal planId={plan.id} onClose={() => setAddItem(false)} />}
       {addFinding && <AddFindingModal planId={plan.id} onClose={() => setAddFinding(false)} />}
-    </div>
-  )
-}
-
-function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void }) {
-  const qc = useQueryClient()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ description: string }>()
-  const createMut = useMutation({
-    mutationFn: (data: { description: string }) =>
-      auditsApi.createItem({ plan_id: planId, description: data.description, test_result: 'Not Tested' }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditItems', planId] }); onClose() },
-  })
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Add Test Item</h2>
-        </div>
-        <form onSubmit={handleSubmit(data => createMut.mutate(data))} className="px-6 py-4 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Description *</label>
-            <textarea
-              {...register('description', { required: 'Required' })}
-              rows={3}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.description && <p className="text-xs text-red-600 mt-1">{errors.description.message}</p>}
-          </div>
-          <div className="flex justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={isSubmitting || createMut.isPending} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">Add Item</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-function AddFindingModal({ planId, onClose }: { planId: string; onClose: () => void }) {
-  const qc = useQueryClient()
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<{
-    title: string; description: string; severity: string; owner?: string; due_date?: string
-  }>({ defaultValues: { severity: 'Medium' } })
-  const createMut = useMutation({
-    mutationFn: (data: { title: string; description: string; severity: string; owner?: string; due_date?: string }) =>
-      auditsApi.createFinding({ plan_id: planId, status: 'Open', ...data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditFindings', planId] }); onClose() },
-  })
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Add Finding</h2>
-        </div>
-        <form onSubmit={handleSubmit(data => createMut.mutate(data))} className="px-6 py-4 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Title *</label>
-            <input
-              {...register('title', { required: 'Required' })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Description *</label>
-            <textarea
-              {...register('description', { required: 'Required' })}
-              rows={2}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Severity</label>
-              <select
-                {...register('severity')}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option>Critical</option>
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
-              <input
-                {...register('due_date')}
-                type="date"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Owner</label>
-            <input
-              {...register('owner')}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={isSubmitting || createMut.isPending} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">Add Finding</button>
-          </div>
-        </form>
-      </div>
     </div>
   )
 }
@@ -425,62 +392,62 @@ export default function AuditPage() {
       <div>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Audit Management</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {plans.length} plan{plans.length !== 1 ? 's' : ''}
-            </p>
+            <h1 className="page-title">Audit Management</h1>
+            <p className="page-subtitle">{plans.length} plan{plans.length !== 1 ? 's' : ''}</p>
           </div>
-          <button
-            onClick={() => setAddPlanOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
+          <button onClick={() => setAddPlanOpen(true)} className="btn-primary">
             + New Plan
           </button>
         </div>
 
         {isLoading ? (
-          <div className="text-sm text-gray-400 text-center py-16">Loading…</div>
+          <div className="text-sm text-slate-400 text-center py-16">Loading…</div>
         ) : plans.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 py-16 text-center text-sm text-gray-400">
+          <div className="neu-card py-16 text-center text-sm text-slate-400">
             No audit plans yet. Create your first plan to get started.
           </div>
         ) : (
           <div className="space-y-3">
             {plans.map(plan => (
-              <div key={plan.id} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:border-blue-300 transition-colors group cursor-pointer"
+              <div
+                key={plan.id}
+                className="neu-card p-4 hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-700 transition-all cursor-pointer group"
                 onClick={() => setSelectedPlan(plan)}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900 truncate">{plan.title}</h3>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${PLAN_STATUS_COLORS[plan.status] ?? 'text-gray-600 bg-gray-100'}`}>
+                      <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{plan.title}</h3>
+                      <span className={`badge flex-shrink-0 ${PLAN_STATUS_BADGE[plan.status] ?? 'badge-gray'}`}>
                         {plan.status}
                       </span>
                     </div>
-                    {plan.scope && <p className="text-xs text-gray-500 truncate">{plan.scope}</p>}
-                    <div className="flex gap-4 mt-2 text-xs text-gray-400">
+                    {plan.scope && <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{plan.scope}</p>}
+                    <div className="flex gap-4 mt-2 text-xs text-slate-400">
                       <span>{plan.item_count} items</span>
-                      <span className="text-green-600">{plan.pass_count} pass</span>
-                      <span className="text-red-500">{plan.fail_count} fail</span>
+                      <span className="text-green-600 dark:text-green-400">{plan.pass_count} pass</span>
+                      <span className="text-red-500 dark:text-red-400">{plan.fail_count} fail</span>
                       {plan.open_findings > 0 && (
-                        <span className="text-orange-600">{plan.open_findings} open finding{plan.open_findings !== 1 ? 's' : ''}</span>
+                        <span className="text-orange-600 dark:text-orange-400">
+                          {plan.open_findings} open finding{plan.open_findings !== 1 ? 's' : ''}
+                        </span>
                       )}
                       {plan.audit_start && <span>{plan.audit_start} → {plan.audit_end ?? '…'}</span>}
                     </div>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={e => e.stopPropagation()}>
+                  <div
+                    className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    onClick={e => e.stopPropagation()}
+                  >
                     <button
                       onClick={() => setEditPlan(plan)}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`Delete plan "${plan.title}"?`)) deleteMut.mutate(plan.id)
-                      }}
-                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                      onClick={() => { if (confirm(`Delete plan "${plan.title}"?`)) deleteMut.mutate(plan.id) }}
+                      className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium"
                     >
                       Delete
                     </button>

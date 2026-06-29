@@ -23,40 +23,32 @@ export default function RisksPage() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Risk Register</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="page-title">Risk Register</h1>
+            <p className="page-subtitle">
               {risks.length} risk{risks.length !== 1 ? 's' : ''}
               {statusFilter !== 'All' && ` · ${statusFilter}`}
             </p>
           </div>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
+          <button onClick={() => setAddOpen(true)} className="btn-primary">
             + Add Risk
           </button>
         </div>
 
-        {/* Status filter */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-5 flex-wrap">
           {STATUSES.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                statusFilter === s
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
+              className={statusFilter === s ? 'neu-pill-active' : 'neu-pill'}
             >
               {s}
             </button>
           ))}
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div className="neu-table-wrap">
           <RiskTable
             risks={risks}
             isLoading={isLoading}

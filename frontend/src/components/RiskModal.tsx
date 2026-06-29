@@ -8,10 +8,6 @@ interface Props {
   onClose: () => void
 }
 
-const FIELD_CLASS =
-  'w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-const LABEL_CLASS = 'block text-xs font-medium text-gray-700 mb-1'
-
 export default function RiskModal({ risk, onClose }: Props) {
   const isEdit = !!risk
   const qc = useQueryClient()
@@ -57,7 +53,6 @@ export default function RiskModal({ risk, onClose }: Props) {
   })
 
   const onSubmit = (data: RiskCreate) => {
-    // strip empty strings to undefined so the backend treats them as null
     const clean = Object.fromEntries(
       Object.entries(data).map(([k, v]) => [k, v === '' ? undefined : v])
     ) as RiskCreate
@@ -68,52 +63,40 @@ export default function RiskModal({ risk, onClose }: Props) {
   const error = createMutation.error || updateMutation.error
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {isEdit ? 'Edit Risk' : 'Add Risk'}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+    <div className="modal-overlay">
+      <div className="modal-panel max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="modal-header sticky top-0 bg-slate-50 dark:bg-slate-800 rounded-t-2xl z-10">
+          <h2 className="modal-title">{isEdit ? 'Edit Risk' : 'Add Risk'}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none transition-colors">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 space-y-4">
-          {/* Title */}
+        <form onSubmit={handleSubmit(onSubmit)} className="modal-body space-y-4">
           <div>
-            <label className={LABEL_CLASS}>Title <span className="text-red-500">*</span></label>
-            <input
-              className={FIELD_CLASS}
-              {...register('title', { required: 'Title is required' })}
-            />
+            <label className="form-label">Title <span className="text-red-500">*</span></label>
+            <input className="neu-input" {...register('title', { required: 'Title is required' })} />
             {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
           </div>
 
-          {/* Description */}
           <div>
-            <label className={LABEL_CLASS}>Description</label>
-            <textarea rows={2} className={FIELD_CLASS} {...register('description')} />
+            <label className="form-label">Description</label>
+            <textarea rows={2} className="neu-input" {...register('description')} />
           </div>
 
-          {/* Threat / Scenario */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={LABEL_CLASS}>Threat</label>
-              <input className={FIELD_CLASS} {...register('threat')} />
+              <label className="form-label">Threat</label>
+              <input className="neu-input" {...register('threat')} />
             </div>
             <div>
-              <label className={LABEL_CLASS}>Scenario</label>
-              <input className={FIELD_CLASS} {...register('scenario')} />
+              <label className="form-label">Scenario</label>
+              <input className="neu-input" {...register('scenario')} />
             </div>
           </div>
 
-          {/* Impact / Likelihood */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={LABEL_CLASS}>Impact <span className="text-red-500">*</span></label>
-              <select className={FIELD_CLASS} {...register('impact', { required: true })}>
+              <label className="form-label">Impact <span className="text-red-500">*</span></label>
+              <select className="neu-select" {...register('impact', { required: true })}>
                 <option>Critical</option>
                 <option>High</option>
                 <option>Medium</option>
@@ -121,8 +104,8 @@ export default function RiskModal({ risk, onClose }: Props) {
               </select>
             </div>
             <div>
-              <label className={LABEL_CLASS}>Likelihood <span className="text-red-500">*</span></label>
-              <select className={FIELD_CLASS} {...register('likelihood', { required: true })}>
+              <label className="form-label">Likelihood <span className="text-red-500">*</span></label>
+              <select className="neu-select" {...register('likelihood', { required: true })}>
                 <option>Likely</option>
                 <option>Possible</option>
                 <option>Unlikely</option>
@@ -131,11 +114,10 @@ export default function RiskModal({ risk, onClose }: Props) {
             </div>
           </div>
 
-          {/* Treatment / Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={LABEL_CLASS}>Treatment <span className="text-red-500">*</span></label>
-              <select className={FIELD_CLASS} {...register('treatment', { required: true })}>
+              <label className="form-label">Treatment <span className="text-red-500">*</span></label>
+              <select className="neu-select" {...register('treatment', { required: true })}>
                 <option>Mitigate</option>
                 <option>Accept</option>
                 <option>Transfer</option>
@@ -143,8 +125,8 @@ export default function RiskModal({ risk, onClose }: Props) {
               </select>
             </div>
             <div>
-              <label className={LABEL_CLASS}>Status <span className="text-red-500">*</span></label>
-              <select className={FIELD_CLASS} {...register('status', { required: true })}>
+              <label className="form-label">Status <span className="text-red-500">*</span></label>
+              <select className="neu-select" {...register('status', { required: true })}>
                 <option>Open</option>
                 <option>In Treatment</option>
                 <option>Closed</option>
@@ -153,49 +135,42 @@ export default function RiskModal({ risk, onClose }: Props) {
             </div>
           </div>
 
-          {/* Treatment notes */}
           <div>
-            <label className={LABEL_CLASS}>Treatment Notes</label>
-            <textarea rows={2} className={FIELD_CLASS} {...register('treatment_notes')} />
+            <label className="form-label">Treatment Notes</label>
+            <textarea rows={2} className="neu-input" {...register('treatment_notes')} />
           </div>
 
-          {/* Owner / Review Date */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={LABEL_CLASS}>Owner</label>
-              <input className={FIELD_CLASS} {...register('owner')} />
+              <label className="form-label">Owner</label>
+              <input className="neu-input" {...register('owner')} />
             </div>
             <div>
-              <label className={LABEL_CLASS}>Review Date</label>
-              <input type="date" className={FIELD_CLASS} {...register('review_date')} />
+              <label className="form-label">Review Date</label>
+              <input type="date" className="neu-input" {...register('review_date')} />
             </div>
           </div>
 
           {error && (
-            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+            <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
               Failed to save. Please try again.
             </p>
           )}
-
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-            >
-              {createMutation.isPending || updateMutation.isPending
-                ? 'Saving…'
-                : isEdit ? 'Save Changes' : 'Add Risk'}
-            </button>
-          </div>
         </form>
+
+        <div className="modal-footer">
+          <button type="button" onClick={onClose} className="modal-cancel">Cancel</button>
+          <button
+            type="button"
+            onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
+            className="btn-primary"
+          >
+            {createMutation.isPending || updateMutation.isPending
+              ? 'Saving…'
+              : isEdit ? 'Save Changes' : 'Add Risk'}
+          </button>
+        </div>
       </div>
     </div>
   )

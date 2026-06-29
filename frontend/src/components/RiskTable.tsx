@@ -9,25 +9,17 @@ interface RiskTableProps {
 }
 
 const impactBadge: Record<string, string> = {
-  Critical: 'bg-red-100 text-red-800',
-  High: 'bg-orange-100 text-orange-800',
-  Medium: 'bg-yellow-100 text-yellow-800',
-  Low: 'bg-green-100 text-green-800',
+  Critical: 'badge-red',
+  High: 'badge-orange',
+  Medium: 'badge-yellow',
+  Low: 'badge-green',
 }
 
 const statusBadge: Record<string, string> = {
-  Open: 'bg-blue-100 text-blue-800',
-  'In Treatment': 'bg-purple-100 text-purple-800',
-  Closed: 'bg-gray-100 text-gray-600',
-  Accepted: 'bg-green-100 text-green-800',
-}
-
-function Badge({ label, colorClass }: { label: string; colorClass: string }) {
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}`}>
-      {label}
-    </span>
-  )
+  Open: 'badge-blue',
+  'In Treatment': 'badge-purple',
+  Closed: 'badge-gray',
+  Accepted: 'badge-green',
 }
 
 function SkeletonRow() {
@@ -35,7 +27,7 @@ function SkeletonRow() {
     <tr className="animate-pulse">
       {Array.from({ length: 8 }).map((_, i) => (
         <td key={i} className="px-4 py-3">
-          <div className="h-4 bg-gray-200 rounded w-3/4" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
         </td>
       ))}
     </tr>
@@ -45,22 +37,17 @@ function SkeletonRow() {
 export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapControls }: RiskTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="neu-table">
+        <thead>
           <tr>
             {['Title', 'Impact', 'Likelihood', 'Treatment', 'Owner', 'Status', 'Review Date', 'Controls', ''].map(
               (col, i) => (
-                <th
-                  key={i}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  {col}
-                </th>
+                <th key={i}>{col}</th>
               )
             )}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
+        <tbody>
           {isLoading ? (
             <>
               <SkeletonRow />
@@ -70,7 +57,7 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapCon
           ) : risks.length === 0 ? (
             <tr>
               <td colSpan={9} className="px-4 py-16 text-center">
-                <div className="flex flex-col items-center gap-3 text-gray-400">
+                <div className="flex flex-col items-center gap-3 text-slate-400">
                   <span className="text-4xl" role="img" aria-label="shield">🛡️</span>
                   <p className="text-sm font-medium">No risks recorded yet</p>
                   <p className="text-xs">Click &quot;+ Add Risk&quot; to register your first risk.</p>
@@ -79,54 +66,54 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapCon
             </tr>
           ) : (
             risks.map((risk) => (
-              <tr key={risk.id} className="hover:bg-gray-50 transition-colors group">
-                <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
+              <tr key={risk.id} className="group">
+                <td>
+                  <div className="text-sm font-medium text-slate-900 dark:text-slate-100 max-w-xs truncate">
                     {risk.title}
                   </div>
                   {risk.description && (
-                    <div className="text-xs text-gray-400 mt-0.5 max-w-xs truncate">
+                    <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 max-w-xs truncate">
                       {risk.description}
                     </div>
                   )}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <Badge label={risk.impact} colorClass={impactBadge[risk.impact] ?? 'bg-gray-100 text-gray-700'} />
+                <td className="whitespace-nowrap">
+                  <span className={`badge ${impactBadge[risk.impact] ?? 'badge-gray'}`}>{risk.impact}</span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                   {risk.likelihood}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                   {risk.treatment}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                  {risk.owner ?? <span className="text-gray-300">—</span>}
+                <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                  {risk.owner ?? <span className="text-slate-300 dark:text-slate-600">—</span>}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <Badge label={risk.status} colorClass={statusBadge[risk.status] ?? 'bg-gray-100 text-gray-700'} />
+                <td className="whitespace-nowrap">
+                  <span className={`badge ${statusBadge[risk.status] ?? 'badge-gray'}`}>{risk.status}</span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                  {risk.review_date ?? <span className="text-gray-300">—</span>}
+                <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                  {risk.review_date ?? <span className="text-slate-300 dark:text-slate-600">—</span>}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="whitespace-nowrap">
                   <button
                     onClick={() => onMapControls(risk)}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors"
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
                   >
                     Map Controls
                   </button>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-right">
+                <td className="whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(risk)}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => onDelete(risk)}
-                      className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                      className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                     >
                       Delete
                     </button>
