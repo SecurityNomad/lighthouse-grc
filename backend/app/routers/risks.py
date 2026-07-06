@@ -15,6 +15,8 @@ router = APIRouter()
 async def list_risks(
     status_filter: Optional[str] = Query(None, alias="status"),
     client_id: Optional[uuid.UUID] = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Risk).order_by(Risk.created_at.desc())
@@ -22,6 +24,7 @@ async def list_risks(
         query = query.where(Risk.status == status_filter)
     if client_id:
         query = query.where(Risk.client_id == client_id)
+    query = query.limit(limit).offset(offset)
     result = await db.execute(query)
     return result.scalars().all()
 

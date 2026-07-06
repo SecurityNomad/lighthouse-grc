@@ -7,18 +7,33 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal'
 import ControlMappingModal from '../components/ControlMappingModal'
 
 const STATUSES = ['All', 'Open', 'In Treatment', 'Closed', 'Accepted'] as const
+const PAGE_SIZE = 25
 
 export default function RisksPage() {
   const [statusFilter, setStatusFilter] = useState<string>('All')
+  const [page, setPage] = useState(0)
   const [addOpen, setAddOpen] = useState(false)
   const [editRisk, setEditRisk] = useState<Risk | null>(null)
   const [deleteRisk, setDeleteRisk] = useState<Risk | null>(null)
   const [mappingRisk, setMappingRisk] = useState<Risk | null>(null)
 
+  function changeStatus(s: string) {
+    setStatusFilter(s)
+    setPage(0)
+  }
+
   const { data: risks = [], isLoading } = useQuery({
-    queryKey: ['risks', statusFilter],
-    queryFn: () => risksApi.list(statusFilter === 'All' ? undefined : statusFilter),
+    queryKey: ['risks', statusFilter, page],
+    queryFn: () => risksApi.list({
+      status: statusFilter === 'All' ? undefined : statusFilter,
+      limit: PAGE_SIZE,
+      offset: page * PAGE_SIZE,
+    }),
   })
+
+  // Without a total count from the API, "Next" is available whenever the page
+  // came back full (i.e. there may be more rows).
+  const hasNextPage = risks.length === PAGE_SIZE
 
   return (
     <>
@@ -29,6 +44,7 @@ export default function RisksPage() {
             <p className="page-subtitle">
               {risks.length} risk{risks.length !== 1 ? 's' : ''}
               {statusFilter !== 'All' && ` · ${statusFilter}`}
+              {page > 0 && ` · page ${page + 1}`}
             </p>
           </div>
           <button onClick={() => setAddOpen(true)} className="btn-primary">
@@ -40,7 +56,7 @@ export default function RisksPage() {
           {STATUSES.map((s) => (
             <button
               key={s}
-              onClick={() => setStatusFilter(s)}
+              onClick={() => changeStatus(s)}
               className={statusFilter === s ? 'neu-pill-active' : 'neu-pill'}
             >
               {s}
@@ -57,6 +73,26 @@ export default function RisksPage() {
             onMapControls={setMappingRisk}
           />
         </div>
+
+        {(page > 0 || hasNextPage) && (
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0 || isLoading}
+              className="neu-pill disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              ← Previous
+            </button>
+            <span className="text-xs text-slate-400">Page {page + 1}</span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={!hasNextPage || isLoading}
+              className="neu-pill disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
 
       {addOpen && <RiskModal onClose={() => setAddOpen(false)} />}

@@ -78,16 +78,18 @@ cd frontend && npm run build
 
 ## Project Scope
 
-Core modules (phased delivery):
-1. **Risk Register** ← Phase 1 (current)
+Core modules (all ✅ shipped as of v1.0, 2026-06-16):
+1. **Risk Register**
 2. Control Framework Library (YAML-defined: SOC 2, ISO 27001, CIS Controls)
 3. Control Mapping (many-to-many across frameworks)
-4. Evidence Collection (manual upload + automated plugins)
+4. Evidence Collection (manual upload + download; automated plugins pending Phase 3)
 5. TPRM Module (vendor register + tiering + questionnaires)
 6. Audit Management (plans, findings, closure tracking)
 7. Dashboard (heatmap, coverage %, evidence freshness)
 
-Plugins (Phase 3): AWS Config/Security Hub, MISP (threat intel), Slack (notifications).
+**Shipped since v1.0:** JWT auth, multi-client scoping (`client_id` FK — see `docs/adr/ADR-002-multi-client-scoping.md`), admin console, role enforcement on writes (v1.1–v1.2).
+
+**Current phase:** Phase 3 — Plugins: AWS Config/Security Hub, MISP (threat intel), Slack (notifications).
 
 **New features go to `FUTURE.md` unless they are in the above list.**
 

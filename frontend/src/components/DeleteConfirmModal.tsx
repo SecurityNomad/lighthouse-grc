@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { risksApi, type Risk } from '../api/risks'
+import { useModalA11y } from '../lib/useModalA11y'
 
 interface Props {
   risk: Risk
@@ -8,6 +9,7 @@ interface Props {
 
 export default function DeleteConfirmModal({ risk, onClose }: Props) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
 
   const mutation = useMutation({
     mutationFn: () => risksApi.delete(risk.id),
@@ -15,10 +17,17 @@ export default function DeleteConfirmModal({ risk, onClose }: Props) {
   })
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-sm">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-risk-title"
+        className="modal-panel max-w-sm"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Delete Risk</h2>
+          <h2 className="modal-title" id="delete-risk-title">Delete Risk</h2>
         </div>
         <div className="modal-body">
           <p className="text-sm text-slate-600 dark:text-slate-400">

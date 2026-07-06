@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { adminApi, type UserRead, type UserCreate, type UserUpdate } from '../api/admin'
 import { useAuth } from '../contexts/AuthContext'
+import { useModalA11y } from '../lib/useModalA11y'
 import { UserPlus, ShieldCheck, KeyRound, User, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react'
 
 type Tab = 'users' | 'account'
@@ -29,6 +30,7 @@ function StatusBadge({ active }: { active: boolean }) {
 
 function CreateUserModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<UserCreate>({
     defaultValues: { role: 'analyst' },
   })
@@ -39,11 +41,18 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   })
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-user-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Create User</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="create-user-title">Create User</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => createMut.mutate(data))}>
           <div className="modal-body">
@@ -61,6 +70,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               <label className="form-label">Role</label>
               <select {...register('role')} className="neu-select">
                 <option value="analyst">Analyst</option>
+                <option value="viewer">Viewer (read-only)</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
@@ -91,6 +101,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
 function EditUserModal({ user, onClose }: { user: UserRead; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<UserUpdate>({
     defaultValues: { full_name: user.full_name, role: user.role },
   })
@@ -101,11 +112,18 @@ function EditUserModal({ user, onClose }: { user: UserRead; onClose: () => void 
   })
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-sm">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-user-title"
+        className="modal-panel max-w-sm"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Edit User</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="edit-user-title">Edit User</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => updateMut.mutate(data))}>
           <div className="modal-body">
@@ -117,6 +135,7 @@ function EditUserModal({ user, onClose }: { user: UserRead; onClose: () => void 
               <label className="form-label">Role</label>
               <select {...register('role')} className="neu-select">
                 <option value="analyst">Analyst</option>
+                <option value="viewer">Viewer (read-only)</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
@@ -140,6 +159,7 @@ function EditUserModal({ user, onClose }: { user: UserRead; onClose: () => void 
 
 function SetPasswordModal({ user, onClose }: { user: UserRead; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<{ password: string; confirm: string }>()
 
   const updateMut = useMutation({
@@ -148,11 +168,18 @@ function SetPasswordModal({ user, onClose }: { user: UserRead; onClose: () => vo
   })
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-sm">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="set-password-title"
+        className="modal-panel max-w-sm"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Set Password</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="set-password-title">Set Password</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => updateMut.mutate(data.password))}>
           <div className="modal-body">

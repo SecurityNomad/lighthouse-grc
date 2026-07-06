@@ -53,13 +53,15 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
         {collapsed && <span className="text-indigo-400 font-bold text-lg mx-auto">L</span>}
         <button
           onClick={() => setCollapsed(c => !c)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
           className="text-slate-400 hover:text-white p-1 rounded ml-auto"
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
-      {/* Client selector */}
+      {/* Client selector (expanded) */}
       {!collapsed && (
         <div className="px-3 py-2 border-b border-slate-700">
           <p className="text-xs text-slate-500 mb-1 uppercase tracking-wide">Client</p>
@@ -69,6 +71,7 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
               const found = clients.find(c => c.id === e.target.value)
               selectClient(found ?? null)
             }}
+            aria-label="Active client"
             className="w-full bg-slate-800 text-slate-200 text-sm rounded px-2 py-1.5 border border-slate-600 focus:outline-none focus:border-indigo-500"
           >
             <option value="">All clients</option>
@@ -76,6 +79,28 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* Client indicator (collapsed) — shows which client is active and
+          expands the sidebar on click so it can be changed. */}
+      {collapsed && (
+        <div className="py-2 border-b border-slate-700 flex justify-center">
+          <button
+            onClick={() => setCollapsed(false)}
+            title={selectedClient ? `Client: ${selectedClient.name}` : 'All clients'}
+            aria-label={selectedClient ? `Active client: ${selectedClient.name}. Expand to change.` : 'All clients. Expand to select a client.'}
+            className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold transition-colors ${
+              selectedClient
+                ? 'bg-indigo-600 text-white'
+                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+            }`}
+          >
+            {selectedClient ? selectedClient.name.charAt(0).toUpperCase() : <Building2 size={16} />}
+            {selectedClient && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 ring-2 ring-slate-900" />
+            )}
+          </button>
         </div>
       )}
 
@@ -118,6 +143,7 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
       <div className="border-t border-slate-700 p-3 space-y-1">
         <button
           onClick={onToggleDark}
+          aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
           className="flex items-center gap-3 w-full px-2 py-2 rounded-md text-slate-400 hover:bg-slate-800 hover:text-white text-sm transition-colors"
         >
           {dark ? <Sun size={18} className="shrink-0" /> : <Moon size={18} className="shrink-0" />}
@@ -131,6 +157,7 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
         )}
         <button
           onClick={handleLogout}
+          aria-label="Log out"
           className="flex items-center gap-3 w-full px-2 py-2 rounded-md text-slate-400 hover:bg-slate-800 hover:text-red-400 text-sm transition-colors"
         >
           <LogOut size={18} className="shrink-0" />

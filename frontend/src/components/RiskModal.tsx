@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { risksApi, type Risk, type RiskCreate } from '../api/risks'
+import { useModalA11y } from '../lib/useModalA11y'
 
 interface Props {
   risk?: Risk | null
@@ -11,6 +12,7 @@ interface Props {
 export default function RiskModal({ risk, onClose }: Props) {
   const isEdit = !!risk
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
 
   const {
     register,
@@ -63,11 +65,18 @@ export default function RiskModal({ risk, onClose }: Props) {
   const error = createMutation.error || updateMutation.error
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="risk-modal-title"
+        className="modal-panel max-w-2xl max-h-[90vh] overflow-y-auto"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header sticky top-0 bg-slate-50 dark:bg-slate-800 rounded-t-2xl z-10">
-          <h2 className="modal-title">{isEdit ? 'Edit Risk' : 'Add Risk'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none transition-colors">✕</button>
+          <h2 className="modal-title" id="risk-modal-title">{isEdit ? 'Edit Risk' : 'Add Risk'}</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none transition-colors">✕</button>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="modal-body space-y-4">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { auditsApi, type AuditPlanSummary, type AuditPlanCreate } from '../api/audit'
 import { useForm } from 'react-hook-form'
+import { useModalA11y } from '../lib/useModalA11y'
 
 const PLAN_STATUS_BADGE: Record<string, string> = {
   Draft: 'badge-gray',
@@ -26,6 +27,7 @@ const TEST_RESULT_COLORS: Record<string, string> = {
 
 function PlanModal({ plan, onClose }: { plan?: AuditPlanSummary; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<AuditPlanCreate>({
     defaultValues: plan ? {
       title: plan.title,
@@ -51,11 +53,18 @@ function PlanModal({ plan, onClose }: { plan?: AuditPlanSummary; onClose: () => 
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="plan-modal-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">{plan ? 'Edit Audit Plan' : 'New Audit Plan'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="plan-modal-title">{plan ? 'Edit Audit Plan' : 'New Audit Plan'}</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="modal-body">
@@ -106,6 +115,7 @@ function PlanModal({ plan, onClose }: { plan?: AuditPlanSummary; onClose: () => 
 
 function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ description: string }>()
   const createMut = useMutation({
     mutationFn: (data: { description: string }) =>
@@ -113,11 +123,18 @@ function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditItems', planId] }); onClose() },
   })
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-item-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Add Test Item</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="add-item-title">Add Test Item</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => createMut.mutate(data))}>
           <div className="modal-body">
@@ -139,6 +156,7 @@ function AddItemModal({ planId, onClose }: { planId: string; onClose: () => void
 
 function AddFindingModal({ planId, onClose }: { planId: string; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<{
     title: string; description: string; severity: string; owner?: string; due_date?: string
   }>({ defaultValues: { severity: 'Medium' } })
@@ -148,11 +166,18 @@ function AddFindingModal({ planId, onClose }: { planId: string; onClose: () => v
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['auditFindings', planId] }); onClose() },
   })
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-finding-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Add Finding</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="add-finding-title">Add Finding</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => createMut.mutate(data))}>
           <div className="modal-body">

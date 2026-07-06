@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { controlsApi, type ControlWithMapping } from '../api/controls'
 import type { Risk } from '../api/risks'
+import { useModalA11y } from '../lib/useModalA11y'
 
 interface Props {
   risk: Risk
@@ -18,6 +19,7 @@ export default function ControlMappingModal({ risk, onClose }: Props) {
   const [search, setSearch] = useState('')
   const [selectedFramework, setSelectedFramework] = useState<string | null>(null)
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
 
   const { data: frameworks = [] } = useQuery({
     queryKey: ['frameworks'],
@@ -58,14 +60,21 @@ export default function ControlMappingModal({ risk, onClose }: Props) {
   const activeFrameworkObj = frameworks.find(f => f.id === activeFramework)
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-2xl max-h-[90vh] flex flex-col">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="map-controls-title"
+        className="modal-panel max-w-2xl max-h-[90vh] flex flex-col"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div>
-            <h2 className="modal-title">Map Controls</h2>
+            <h2 className="modal-title" id="map-controls-title">Map Controls</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-md">{risk.title}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
 
         <div className="flex flex-1 min-h-0 divide-x divide-slate-100 dark:divide-slate-700">
