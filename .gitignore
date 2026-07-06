@@ -78,6 +78,12 @@ coverage.xml
 # Claude Code
 .claude/
 
+# Impeccable (design agent tooling — installed locally, not part of the repo)
+# Note: PRODUCT.md and DESIGN.md live at the repo root and ARE tracked (design context).
+.github/hooks/
+.github/skills/
+.impeccable/
+
 # Local working files (not part of the repo)
 TASKS.md
 REVIEW_*.md
