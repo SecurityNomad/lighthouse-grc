@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { RefreshCw } from 'lucide-react'
-import { dashboardApi } from '../api/dashboard'
+import { RefreshCw, ShieldCheck, ArrowRight } from 'lucide-react'
+import { dashboardApi, type DashboardData } from '../api/dashboard'
 import { useClient } from '../contexts/ClientContext'
 
 const IMPACT_COLORS: Record<string, string> = {
@@ -11,37 +11,130 @@ const IMPACT_COLORS: Record<string, string> = {
   Low: 'bg-green-400',
 }
 
-/** A KPI tile that links into the list it summarises. Keyboard-focusable, with
- *  an accessible label combining the metric, value, and supporting detail. */
-function StatCard({ label, value, sub, to, color = 'text-slate-900 dark:text-slate-100' }: {
+type Severity = 'critical' | 'high'
+
+const SEVERITY = {
+  critical: {
+    dot: 'bg-red-500',
+    value: 'text-red-600 dark:text-red-400',
+    ring: 'ring-1 ring-red-500/30 dark:ring-red-400/25',
+    chip: 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40',
+  },
+  high: {
+    dot: 'bg-orange-500',
+    value: 'text-orange-600 dark:text-orange-400',
+    ring: 'ring-1 ring-orange-500/30 dark:ring-orange-400/25',
+    chip: 'text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/40',
+  },
+} as const
+
+interface Signal {
+  label: string
+  detail: string
+  severity: Severity
+  to: string
+}
+
+/** Rank the posture into the handful of things that actually need attention,
+ *  worst first. This is the lighthouse job: signal danger before it grounds you. */
+function computeSignals(data: DashboardData): Signal[] {
+  const signals: Signal[] = []
+  if (data.evidence_expired > 0)
+    signals.push({ label: 'Evidence expired', detail: `${data.evidence_expired} file${data.evidence_expired !== 1 ? 's' : ''}`, severity: 'critical', to: '/evidence' })
+  if (data.high_risks_open > 0)
+    signals.push({ label: 'High / Critical risks open', detail: `${data.high_risks_open} risk${data.high_risks_open !== 1 ? 's' : ''}`, severity: 'critical', to: '/risks' })
+  if (data.open_findings > 0)
+    signals.push({ label: 'Open audit findings', detail: `${data.open_findings}`, severity: 'high', to: '/audits' })
+  if (data.evidence_expiring_soon > 0)
+    signals.push({ label: 'Evidence expiring soon', detail: `${data.evidence_expiring_soon} file${data.evidence_expiring_soon !== 1 ? 's' : ''}`, severity: 'high', to: '/evidence' })
+  if (data.control_coverage_pct < 50)
+    signals.push({ label: 'Low control coverage', detail: `${data.control_coverage_pct.toFixed(0)}%`, severity: 'high', to: '/risks' })
+  const order: Record<Severity, number> = { critical: 0, high: 1 }
+  return signals.sort((a, b) => order[a.severity] - order[b.severity])
+}
+
+/** The lead. When something needs attention it stands up off the surface with a
+ *  severity ring and ranks the issues; when all-clear it stays quiet and calm. */
+function AttentionBanner({ signals }: { signals: Signal[] }) {
+  if (signals.length === 0) {
+    return (
+      <div className="neu-card p-5 flex items-center gap-4">
+        <div className="w-11 h-11 rounded-2xl bg-green-100 dark:bg-green-950/50 flex items-center justify-center shrink-0">
+          <ShieldCheck size={22} className="text-green-600 dark:text-green-400" />
+        </div>
+        <div>
+          <p className="text-base font-semibold text-slate-900 dark:text-slate-100" style={{ fontFamily: '"Plus Jakarta Sans", Inter, sans-serif' }}>
+            Posture stable
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">No urgent items across risks, evidence, or findings.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const top = signals[0]
+  return (
+    <div className={`neu-card p-5 ${SEVERITY[top.severity].ring}`}>
+      <div className="flex items-start gap-4">
+        <div className={`w-11 h-11 rounded-2xl ${SEVERITY[top.severity].chip} flex items-center justify-center shrink-0`}>
+          <span className={`w-3 h-3 rounded-full ${SEVERITY[top.severity].dot}`} aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-semibold text-slate-900 dark:text-slate-100" style={{ fontFamily: '"Plus Jakarta Sans", Inter, sans-serif' }}>
+            {signals.length} area{signals.length !== 1 ? 's' : ''} need attention
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+            Most pressing: <span className={`font-semibold ${SEVERITY[top.severity].value}`}>{top.label.toLowerCase()}</span> ({top.detail}).
+          </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {signals.map(s => (
+              <Link
+                key={s.label}
+                to={s.to}
+                className={`group inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-2 py-1 text-xs font-medium ${SEVERITY[s.severity].chip}
+                            outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${SEVERITY[s.severity].dot}`} aria-hidden="true" />
+                {s.label} · {s.detail}
+                <ArrowRight size={12} className="opacity-60 transition-transform motion-safe:group-hover:translate-x-0.5" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** A KPI tile that links into the list it summarises. `alert` raises the tile
+ *  off the surface with a severity ring + dot; calm tiles stay quiet. */
+function StatCard({ label, value, sub, to, color = 'text-slate-900 dark:text-slate-100', alert }: {
   label: string
   value: number | string
   sub?: string
   to: string
   color?: string
+  alert?: Severity
 }) {
   return (
     <Link
       to={to}
       aria-label={`${label}: ${value}${sub ? `. ${sub}` : ''}. View details.`}
-      className="neu-card p-5 block outline-none transition-shadow
-                 focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
+      className={`neu-card p-5 block outline-none transition-shadow
+                  focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400
+                  ${alert ? SEVERITY[alert].ring : ''}`}
     >
-      <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wide font-semibold">{label}</p>
+      <div className="flex items-center gap-1.5">
+        {alert && <span className={`w-2 h-2 rounded-full ${SEVERITY[alert].dot}`} aria-hidden="true" />}
+        <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wide font-semibold">{label}</p>
+      </div>
       <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
       {sub && <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{sub}</p>}
     </Link>
   )
 }
 
-/** A labelled horizontal magnitude bar, exposed to assistive tech as a
- *  progressbar with its real value. */
-function BarRow({ label, count, total, barClass }: {
-  label: string
-  count: number
-  total: number
-  barClass: string
-}) {
+function BarRow({ label, count, total, barClass }: { label: string; count: number; total: number; barClass: string }) {
   const pct = total > 0 ? (count / total) * 100 : 0
   return (
     <div>
@@ -93,6 +186,12 @@ export default function DashboardPage() {
   const totalRisks = data.open_risks_by_impact.reduce((s, r) => s + r.count, 0)
   const totalVendors = data.vendors_by_tier.reduce((s, v) => s + v.count, 0)
   const scope = selectedClient ? selectedClient.name : 'All clients'
+  const signals = computeSignals(data)
+
+  const evidenceAlerts = data.evidence_expired + data.evidence_expiring_soon
+  const coverageColor = data.control_coverage_pct < 50
+    ? 'text-red-600 dark:text-red-400'
+    : data.control_coverage_pct < 80 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'
 
   return (
     <div className="space-y-6">
@@ -114,6 +213,9 @@ export default function DashboardPage() {
         </button>
       </div>
 
+      {/* Lead: what needs attention, worst first */}
+      <AttentionBanner signals={signals} />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Open Risks"
@@ -121,20 +223,23 @@ export default function DashboardPage() {
           to="/risks"
           sub={`${data.high_risks_open} High/Critical`}
           color={data.high_risks_open > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-900 dark:text-slate-100'}
+          alert={data.high_risks_open > 0 ? 'critical' : undefined}
         />
         <StatCard
           label="Control Coverage"
           value={`${data.control_coverage_pct.toFixed(0)}%`}
           to="/risks"
           sub="risks with ≥1 control mapped"
-          color={data.control_coverage_pct < 50 ? 'text-red-600 dark:text-red-400' : data.control_coverage_pct < 80 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}
+          color={coverageColor}
+          alert={data.control_coverage_pct < 50 ? 'high' : undefined}
         />
         <StatCard
           label="Evidence Alerts"
-          value={data.evidence_expired + data.evidence_expiring_soon}
+          value={evidenceAlerts}
           to="/evidence"
           sub={`${data.evidence_expired} expired · ${data.evidence_expiring_soon} expiring soon`}
-          color={(data.evidence_expired + data.evidence_expiring_soon) > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}
+          color={evidenceAlerts > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}
+          alert={data.evidence_expired > 0 ? 'critical' : data.evidence_expiring_soon > 0 ? 'high' : undefined}
         />
         <StatCard
           label="Open Findings"
@@ -142,6 +247,7 @@ export default function DashboardPage() {
           to="/audits"
           sub={`${data.audits_active} active audit${data.audits_active !== 1 ? 's' : ''}`}
           color={data.open_findings > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-900 dark:text-slate-100'}
+          alert={data.open_findings > 0 ? 'high' : undefined}
         />
       </div>
 
@@ -159,13 +265,7 @@ export default function DashboardPage() {
               {['Critical', 'High', 'Medium', 'Low'].map(impact => {
                 const entry = data.open_risks_by_impact.find(r => r.impact === impact)
                 return (
-                  <BarRow
-                    key={impact}
-                    label={impact}
-                    count={entry?.count ?? 0}
-                    total={totalRisks}
-                    barClass={IMPACT_COLORS[impact] ?? 'bg-slate-400'}
-                  />
+                  <BarRow key={impact} label={impact} count={entry?.count ?? 0} total={totalRisks} barClass={IMPACT_COLORS[impact] ?? 'bg-slate-400'} />
                 )
               })}
             </div>
@@ -188,9 +288,7 @@ export default function DashboardPage() {
                 const entry = data.vendors_by_tier.find(v => v.tier === tier)
                 const tierLabel = tier === 1 ? 'Tier 1 — Critical' : tier === 2 ? 'Tier 2 — Important' : 'Tier 3 — Standard'
                 const barClass = tier === 1 ? 'bg-red-500' : tier === 2 ? 'bg-orange-400' : 'bg-green-400'
-                return (
-                  <BarRow key={tier} label={tierLabel} count={entry?.count ?? 0} total={totalVendors} barClass={barClass} />
-                )
+                return <BarRow key={tier} label={tierLabel} count={entry?.count ?? 0} total={totalVendors} barClass={barClass} />
               })}
             </div>
           )}
