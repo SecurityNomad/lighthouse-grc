@@ -8,11 +8,13 @@ from app.config import settings
 from app.database import AsyncSessionLocal
 from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard
 from app.routers import auth as auth_router, clients as clients_router, admin as admin_router
+from app.routers import plugins as plugins_router
 from app.seed import seed_frameworks, seed_vendor_questions, seed_admin_user
 from app.auth import get_current_user, enforce_write_permission
 from app.seed_demo import seed_demo_data
+import app.plugins  # noqa: F401 — registers the built-in plugins with the registry
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.3.0"
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +77,7 @@ app.include_router(evidence.router, prefix="/api/v1/evidence", tags=["evidence"]
 app.include_router(tprm.router, prefix="/api/v1", tags=["tprm"], dependencies=_auth_dep)
 app.include_router(audit.router, prefix="/api/v1", tags=["audit"], dependencies=_auth_dep)
 app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"], dependencies=_auth_dep)
+app.include_router(plugins_router.router, prefix="/api/v1", tags=["plugins"], dependencies=_auth_dep)
 
 
 @app.get("/", tags=["health"])

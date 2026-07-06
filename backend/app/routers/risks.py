@@ -44,6 +44,18 @@ async def create_risk(
     db.add(risk)
     await db.commit()
     await db.refresh(risk)
+
+    # Notify configured channels (e.g. Slack) about new high-severity risks.
+    # Failsafe: dispatch never raises, so a down channel can't fail the request.
+    if risk.impact in ("Critical", "High"):
+        from app.plugins.base import dispatch_notification, NotificationEvent
+        await dispatch_notification(NotificationEvent(
+            event_type="risk.created",
+            title=f"New {risk.impact} risk: {risk.title}",
+            message=f"A {risk.impact}-impact risk was added to the register.",
+            severity="critical" if risk.impact == "Critical" else "high",
+        ))
+
     return risk
 
 

@@ -89,7 +89,9 @@ Core modules (all ✅ shipped as of v1.0, 2026-06-16):
 
 **Shipped since v1.0:** JWT auth, multi-client scoping (`client_id` FK — see `docs/adr/ADR-002-multi-client-scoping.md`), admin console, role enforcement on writes (v1.1–v1.2).
 
-**Current phase:** Phase 3 — Plugins: AWS Config/Security Hub, MISP (threat intel), Slack (notifications).
+**Phase 3 plugins (v1.3, shipped):** typed plugin SDK (`app/plugins/`) with three integrations — `aws_config` + `misp` (import findings into the Risk Register) and `slack` (notifications). Live/demo modes. See `docs/adr/ADR-005-plugin-architecture.md` and `docs/plugin-sdk.md`.
+
+**Current phase:** Phase 4 — Anchor Tenant & Close (data seeding, Fly.io deployment, case study, closure).
 
 **New features go to `FUTURE.md` unless they are in the above list.**
 
