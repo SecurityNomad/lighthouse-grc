@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { clientsApi, type Client, type ClientCreate } from '../api/clients'
 import { useClient } from '../contexts/ClientContext'
+import { useModalA11y } from '../lib/useModalA11y'
 import { Plus, Building2, Edit2, Trash2, Check } from 'lucide-react'
 
 const EMPTY_FORM: ClientCreate = { name: '', industry: '', description: '', country: '' }
@@ -16,17 +17,25 @@ function ClientModal({
   onSave: (data: ClientCreate) => void
 }) {
   const [form, setForm] = useState<ClientCreate>(initial)
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
 
   function set(field: keyof ClientCreate, value: string) {
     setForm(f => ({ ...f, [field]: value }))
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="client-modal-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">{initial.name ? 'Edit Client' : 'New Client'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="client-modal-title">{initial.name ? 'Edit Client' : 'New Client'}</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <div className="modal-body">
           <div>
@@ -174,6 +183,7 @@ export default function ClientsPage() {
                 <div className="flex gap-1 mt-3 justify-end" onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => setModal({ mode: 'edit', client })}
+                    aria-label={`Edit ${client.name}`}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors"
                   >
                     <Edit2 size={14} />
@@ -185,6 +195,7 @@ export default function ClientsPage() {
                         deleteMut.mutate(client.id)
                       }
                     }}
+                    aria-label={`Delete ${client.name}`}
                     className="p-1.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
                   >
                     <Trash2 size={14} />

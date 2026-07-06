@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     upload_dir: str = "/app/uploads"
     seed_demo_data: bool = False
+    # Evidence upload limits
+    max_upload_mb: int = 25
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

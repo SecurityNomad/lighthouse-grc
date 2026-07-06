@@ -77,3 +77,7 @@ coverage.xml
 
 # Claude Code
 .claude/
+
+# Local working files (not part of the repo)
+TASKS.md
+REVIEW_*.md

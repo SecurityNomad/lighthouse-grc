@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { evidenceApi, type Evidence, type EvidenceUpdate } from '../api/evidence'
 import { useForm } from 'react-hook-form'
+import { useModalA11y } from '../lib/useModalA11y'
 
 const STATUS_BADGE: Record<string, string> = {
   Current: 'badge-green',
@@ -17,6 +18,7 @@ function formatBytes(bytes: number) {
 
 function EditModal({ evidence, onClose }: { evidence: Evidence; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<EvidenceUpdate>({
     defaultValues: {
       title: evidence.title,
@@ -31,11 +33,18 @@ function EditModal({ evidence, onClose }: { evidence: Evidence; onClose: () => v
   })
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-md">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-evidence-title"
+        className="modal-panel max-w-md"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2 className="modal-title">Edit Evidence</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="edit-evidence-title">Edit Evidence</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(data => updateMut.mutate(data))}>
           <div className="modal-body">
@@ -87,6 +96,11 @@ export default function EvidencePage() {
   const deleteMut = useMutation({
     mutationFn: evidenceApi.delete,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['evidence'] }),
+  })
+
+  const downloadMut = useMutation({
+    mutationFn: ({ id, fileName }: { id: string; fileName: string }) =>
+      evidenceApi.download(id, fileName),
   })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,6 +188,13 @@ export default function EvidencePage() {
                     </td>
                     <td>
                       <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => downloadMut.mutate({ id: e.id, fileName: e.file_name })}
+                          disabled={downloadMut.isPending}
+                          className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-medium disabled:opacity-50"
+                        >
+                          Download
+                        </button>
                         <button
                           onClick={() => setEditEvidence(e)}
                           className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"

@@ -104,6 +104,8 @@ async def list_vendors(
     tier: Optional[int] = Query(None),
     category: Optional[str] = Query(None),
     client_id: Optional[uuid.UUID] = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Vendor).order_by(Vendor.name)
@@ -115,6 +117,7 @@ async def list_vendors(
         query = query.where(Vendor.category == category)
     if client_id:
         query = query.where(Vendor.client_id == client_id)
+    query = query.limit(limit).offset(offset)
     result = await db.execute(query)
     return result.scalars().all()
 

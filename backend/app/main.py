@@ -9,8 +9,10 @@ from app.database import AsyncSessionLocal
 from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard
 from app.routers import auth as auth_router, clients as clients_router, admin as admin_router
 from app.seed import seed_frameworks, seed_vendor_questions, seed_admin_user
-from app.auth import get_current_user
+from app.auth import get_current_user, enforce_write_permission
 from app.seed_demo import seed_demo_data
+
+APP_VERSION = "1.1.0"
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +46,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Lighthouse GRC Platform",
     description="A minimalist, opinionated GRC platform for small-to-mid SaaS companies.",
-    version="1.0.0",
+    version=APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -58,11 +60,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_auth_dep = [Depends(get_current_user)]
+# Resource routers authenticate every request and reject writes from read-only
+# (viewer) roles via enforce_write_permission. auth/admin/clients manage their
+# own authorization (login is public; admin routes require the admin role).
+_auth_dep = [Depends(enforce_write_permission)]
 
 app.include_router(auth_router.router, prefix="/api/v1", tags=["auth"])
 app.include_router(admin_router.router, prefix="/api/v1", tags=["admin"])
-app.include_router(clients_router.router, prefix="/api/v1", tags=["clients"])
+app.include_router(clients_router.router, prefix="/api/v1", tags=["clients"], dependencies=[Depends(get_current_user)])
 app.include_router(risks.router, prefix="/api/v1/risks", tags=["risks"], dependencies=_auth_dep)
 app.include_router(controls.router, prefix="/api/v1", tags=["controls"], dependencies=_auth_dep)
 app.include_router(control_mapping.router, prefix="/api/v1", tags=["control-mapping"], dependencies=_auth_dep)
@@ -74,7 +79,7 @@ app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"], depen
 
 @app.get("/", tags=["health"])
 async def root():
-    return {"status": "ok", "service": "lighthouse-api", "version": "0.2.0"}
+    return {"status": "ok", "service": "lighthouse-api", "version": APP_VERSION}
 
 
 @app.get("/health", tags=["health"])

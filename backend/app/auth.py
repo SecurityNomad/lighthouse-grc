@@ -4,7 +4,7 @@ import uuid
 
 import bcrypt as _bcrypt
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -14,6 +14,11 @@ from app.config import settings
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8  # 8 hours
+
+# Role model: admin and analyst may create/update/delete; viewer is read-only.
+VALID_ROLES = {"admin", "analyst", "viewer"}
+WRITE_ROLES = {"admin", "analyst"}
+WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
@@ -51,11 +56,29 @@ async def get_current_user(
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-    except JWTError:
+        user_uuid = uuid.UUID(user_id)
+    except (JWTError, ValueError):
+        # ValueError covers a malformed `sub` that isn't a valid UUID —
+        # return 401 rather than letting it escape as a 500.
         raise credentials_exception
 
-    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
         raise credentials_exception
     return user
+
+
+async def enforce_write_permission(
+    request: Request,
+    current_user: "User" = Depends(get_current_user),
+):
+    """Router-wide guard: authenticates the user and, on mutating requests,
+    rejects read-only (viewer) roles with 403. Read requests pass for any
+    authenticated role."""
+    if request.method in WRITE_METHODS and current_user.role not in WRITE_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your role does not permit this action",
+        )
+    return current_user

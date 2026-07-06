@@ -24,6 +24,8 @@ router = APIRouter()
 async def list_plans(
     status_filter: Optional[str] = Query(None, alias="status"),
     client_id: Optional[uuid.UUID] = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(AuditPlan).order_by(AuditPlan.created_at.desc())
@@ -31,6 +33,7 @@ async def list_plans(
         query = query.where(AuditPlan.status == status_filter)
     if client_id:
         query = query.where(AuditPlan.client_id == client_id)
+    query = query.limit(limit).offset(offset)
     result = await db.execute(query)
     plans = result.scalars().all()
 

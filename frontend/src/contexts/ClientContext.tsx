@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { clientsApi, type Client } from '../api/clients'
 import { useAuth } from './AuthContext'
 
@@ -14,6 +14,7 @@ const ClientContext = createContext<ClientContextType | null>(null)
 
 export function ClientProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth()
+  const queryClient = useQueryClient()
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   const { data: clients = [], isLoading } = useQuery({
@@ -39,7 +40,14 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     } else {
       localStorage.removeItem('lh_client_id')
     }
-  }, [])
+    // The axios interceptor reads lh_client_id from localStorage (already
+    // updated above), so invalidating every scoped query forces a refetch
+    // for the newly selected client instead of showing the previous client's
+    // cached data. 'clients' is left intact — it isn't client-scoped.
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] !== 'clients',
+    })
+  }, [queryClient])
 
   return (
     <ClientContext.Provider value={{ clients, selectedClient, selectClient, isLoading }}>

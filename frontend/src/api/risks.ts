@@ -21,9 +21,20 @@ export interface Risk {
 export type RiskCreate = Omit<Risk, 'id' | 'created_at' | 'updated_at'>
 export type RiskUpdate = Partial<RiskCreate>
 
+export interface RiskListParams {
+  status?: string
+  limit?: number
+  offset?: number
+}
+
 export const risksApi = {
-  list: (status?: string) =>
-    api.get<Risk[]>('/risks/', { params: status ? { status } : {} }).then(r => r.data),
+  list: (params: RiskListParams = {}) => {
+    const query: Record<string, string | number> = {}
+    if (params.status) query.status = params.status
+    if (params.limit != null) query.limit = params.limit
+    if (params.offset != null) query.offset = params.offset
+    return api.get<Risk[]>('/risks/', { params: query }).then(r => r.data)
+  },
   get: (id: string) => api.get<Risk>(`/risks/${id}`).then(r => r.data),
   create: (data: RiskCreate) => api.post<Risk>('/risks/', data).then(r => r.data),
   update: (id: string, data: RiskUpdate) => api.put<Risk>(`/risks/${id}`, data).then(r => r.data),

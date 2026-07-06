@@ -57,12 +57,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: ./frontend
-        # Using npm install until package-lock.json is committed (run `npm install`
-        # locally in the frontend/ directory, commit the lock file, then switch back to npm ci)
-        run: npm install
+        # package-lock.json is committed, so use npm ci for reproducible installs.
+        run: npm ci
 
       - name: Build
         working-directory: ./frontend

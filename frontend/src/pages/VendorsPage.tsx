@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { vendorsApi, type Vendor, type VendorCreate } from '../api/tprm'
 import { useForm } from 'react-hook-form'
+import { useModalA11y } from '../lib/useModalA11y'
 
 const TIER_BADGE: Record<number, string> = {
   1: 'badge-red',
@@ -31,6 +32,7 @@ const VENDOR_STATUS_BADGE: Record<string, string> = {
 
 function VendorModal({ vendor, onClose }: { vendor?: Vendor; onClose: () => void }) {
   const qc = useQueryClient()
+  const dialogRef = useModalA11y<HTMLDivElement>(onClose)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<VendorCreate>({
     defaultValues: vendor ? {
       name: vendor.name,
@@ -61,11 +63,18 @@ function VendorModal({ vendor, onClose }: { vendor?: Vendor; onClose: () => void
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-panel max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="vendor-modal-title"
+        className="modal-panel max-w-lg max-h-[90vh] overflow-y-auto"
+        onMouseDown={e => e.stopPropagation()}
+      >
         <div className="modal-header sticky top-0 bg-slate-50 dark:bg-slate-800 rounded-t-2xl z-10">
-          <h2 className="modal-title">{vendor ? 'Edit Vendor' : 'Add Vendor'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
+          <h2 className="modal-title" id="vendor-modal-title">{vendor ? 'Edit Vendor' : 'Add Vendor'}</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">✕</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="modal-body">
