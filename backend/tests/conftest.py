@@ -17,6 +17,7 @@ os.environ.setdefault("UPLOAD_DIR", _TEST_UPLOAD_DIR)
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool, StaticPool
 
@@ -46,6 +47,17 @@ else:
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def engine():
     _engine = create_async_engine(TEST_DATABASE_URL, echo=False, **_pool_kwargs)
+
+    # SQLite doesn't enforce foreign keys unless asked to. Turn it on so local
+    # runs catch FK violations (e.g. a risk referencing a non-existent client)
+    # that would otherwise only fail on the CI Postgres service.
+    if TEST_DATABASE_URL.startswith("sqlite"):
+        @event.listens_for(_engine.sync_engine, "connect")
+        def _enable_sqlite_fk(dbapi_conn, _record):
+            cursor = dbapi_conn.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     async with async_sessionmaker(_engine, expire_on_commit=False)() as session:

@@ -9,6 +9,18 @@ from httpx import AsyncClient
 from app.config import settings
 
 
+async def _create_client(client: AsyncClient, name: str) -> str:
+    """Create a real client via the API and return its id. Risks/vendors/etc.
+    carry a FK to clients, so scoped tests must reference a client that exists
+    (Postgres enforces the constraint; SQLite does not)."""
+    resp = await client.post(
+        "/api/v1/clients",
+        json={"name": name, "industry": "Testing"},
+    )
+    assert resp.status_code == 201, resp.text
+    return resp.json()["id"]
+
+
 # -- Evidence download ---------------------------------------------------------
 
 @pytest.mark.asyncio
@@ -95,7 +107,7 @@ async def test_viewer_cannot_delete_risk(viewer_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_risks_pagination(client: AsyncClient):
-    page_client = str(uuid.uuid4())
+    page_client = await _create_client(client, "Pagination Co")
     for i in range(5):
         await client.post(
             f"/api/v1/risks/?client_id={page_client}",
@@ -123,8 +135,8 @@ async def test_risks_pagination_rejects_bad_limit(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_dashboard_scopes_by_client(client: AsyncClient):
-    client_a = str(uuid.uuid4())
-    client_b = str(uuid.uuid4())
+    client_a = await _create_client(client, "Hospital A")
+    client_b = await _create_client(client, "Insurer B")
 
     # Two open Critical risks for A, one for B.
     for _ in range(2):
