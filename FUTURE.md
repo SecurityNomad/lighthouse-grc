@@ -2,10 +2,17 @@
 
 Features deferred beyond v1.0. Add ideas here rather than implementing them directly.
 
-## Phase 3 — Plugins & Integrations
-- **AWS Config / Security Hub**: Automated control evidence pull via AWS SDK
-- **MISP (threat intel)**: Ingest threat indicators to pre-populate risk register
-- **Slack notifications**: Alert on new open findings, evidence expiry, high-risk items
+## Phase 3 — Plugins & Integrations — ✅ SHIPPED in v1.3
+- ~~**AWS Config / Security Hub**~~ — imports non-compliant findings into the Risk Register (`aws_config` plugin)
+- ~~**MISP (threat intel)**~~ — ingests MISP events into the Risk Register (`misp` plugin)
+- ~~**Slack notifications**~~ — posts new High/Critical risks to a webhook (`slack` plugin)
+
+  Typed plugin SDK with live/demo modes — see `docs/adr/ADR-005-plugin-architecture.md` and `docs/plugin-sdk.md`. Remaining plugin work below (scheduled polling; more channels/sources).
+
+## Phase 3.x — Plugin follow-ups
+- **Scheduled collection**: background polling per plugin (currently on-demand via UI/API)
+- **More notification triggers**: evidence expiry, new audit findings, overdue TPRM assessments
+- **More sources/channels**: Azure/GCP source plugins; email/PagerDuty notifications
 
 ## Phase 4 — Advanced TPRM
 - **Vendor assessment workflow UI**: Step-by-step guided questionnaire for vendors (backend APIs exist in v1.0, frontend UI deferred)

@@ -10,6 +10,7 @@ import VendorsPage from './pages/VendorsPage'
 import AuditPage from './pages/AuditPage'
 import DashboardPage from './pages/DashboardPage'
 import ClientsPage from './pages/ClientsPage'
+import PluginsPage from './pages/PluginsPage'
 import AdminPage from './pages/AdminPage'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -59,6 +60,7 @@ export default function App() {
                   <Route path="/vendors" element={<VendorsPage />} />
                   <Route path="/audits" element={<AuditPage />} />
                   <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/plugins" element={<PluginsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
                 </Routes>
               </AppLayout>

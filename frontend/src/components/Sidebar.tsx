@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Shield, BookOpen, FileCheck, Building2,
-  ClipboardList, Users, ChevronLeft, ChevronRight, Sun, Moon, LogOut, Settings,
+  ClipboardList, Users, Plug, ChevronLeft, ChevronRight, Sun, Moon, LogOut, Settings,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useClient } from '../contexts/ClientContext'
@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { to: '/vendors', icon: Building2, label: 'Vendors' },
   { to: '/audits', icon: ClipboardList, label: 'Audits' },
   { to: '/clients', icon: Users, label: 'Clients' },
+  { to: '/plugins', icon: Plug, label: 'Plugins' },
 ]
 
 interface SidebarProps {

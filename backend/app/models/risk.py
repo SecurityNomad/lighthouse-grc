@@ -46,6 +46,12 @@ class Risk(Base):
         Uuid(as_uuid=True), ForeignKey("clients.id", ondelete="SET NULL"), nullable=True
     )
 
+    # Provenance — where this risk came from. "Manual" for user-entered risks;
+    # a plugin name (e.g. "aws_config", "misp") for imported ones. external_id
+    # is the source system's identifier, used to avoid re-importing duplicates.
+    source: Mapped[str] = mapped_column(String(50), nullable=False, default="Manual")
+    external_id: Mapped[str | None] = mapped_column(String(255))
+
     # Integer scoring — auto-derived from string fields in the router
     likelihood_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=3)
     impact_score: Mapped[int] = mapped_column(Integer(), nullable=False, default=3)

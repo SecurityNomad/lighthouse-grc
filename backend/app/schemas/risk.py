@@ -46,6 +46,8 @@ class RiskUpdate(BaseModel):
 
 class RiskRead(RiskBase):
     id: uuid.UUID
+    source: str = "Manual"
+    external_id: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 
