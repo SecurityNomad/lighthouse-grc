@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Shield, BookOpen, FileCheck, Building2,
-  ClipboardList, Users, Plug, ChevronLeft, ChevronRight, Sun, Moon, LogOut, Settings,
+  ClipboardList, Users, Plug, ChevronLeft, ChevronRight, Sun, Moon, LogOut, Settings, ListChecks,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useClient } from '../contexts/ClientContext'
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/risks', icon: Shield, label: 'Risk Register' },
   { to: '/controls', icon: BookOpen, label: 'Controls' },
+  { to: '/soa', icon: ListChecks, label: 'Applicability' },
   { to: '/evidence', icon: FileCheck, label: 'Evidence' },
   { to: '/vendors', icon: Building2, label: 'Vendors' },
   { to: '/audits', icon: ClipboardList, label: 'Audits' },

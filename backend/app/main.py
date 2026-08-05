@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import AsyncSessionLocal
-from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard
+from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard, soa
 from app.routers import auth as auth_router, clients as clients_router, admin as admin_router
 from app.routers import plugins as plugins_router
 from app.seed import seed_frameworks, seed_vendor_questions, seed_admin_user
@@ -73,6 +73,7 @@ app.include_router(clients_router.router, prefix="/api/v1", tags=["clients"], de
 app.include_router(risks.router, prefix="/api/v1/risks", tags=["risks"], dependencies=_auth_dep)
 app.include_router(controls.router, prefix="/api/v1", tags=["controls"], dependencies=_auth_dep)
 app.include_router(control_mapping.router, prefix="/api/v1", tags=["control-mapping"], dependencies=_auth_dep)
+app.include_router(soa.router, prefix="/api/v1", tags=["soa"], dependencies=_auth_dep)
 app.include_router(evidence.router, prefix="/api/v1/evidence", tags=["evidence"], dependencies=_auth_dep)
 app.include_router(tprm.router, prefix="/api/v1", tags=["tprm"], dependencies=_auth_dep)
 app.include_router(audit.router, prefix="/api/v1", tags=["audit"], dependencies=_auth_dep)

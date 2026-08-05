@@ -189,6 +189,12 @@ export default function DashboardPage() {
   const signals = computeSignals(data)
 
   const evidenceAlerts = data.evidence_expired + data.evidence_expiring_soon
+  // Shared threshold for framework readiness meters: below half is a problem,
+  // 80%+ is audit-ready. Matches the SoA page so the two never disagree.
+  const readinessColor = (pct: number) =>
+    pct < 50 ? 'text-red-600 dark:text-red-400'
+      : pct < 80 ? 'text-orange-600 dark:text-orange-400'
+        : 'text-green-600 dark:text-green-400'
   const coverageColor = data.control_coverage_pct < 50
     ? 'text-red-600 dark:text-red-400'
     : data.control_coverage_pct < 80 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'
@@ -232,6 +238,20 @@ export default function DashboardPage() {
           sub="risks with ≥1 control mapped"
           color={coverageColor}
           alert={data.control_coverage_pct < 50 ? 'high' : undefined}
+        />
+        <StatCard
+          label="ISO 27001 SoA"
+          value={`${data.iso_soa_readiness_pct.toFixed(0)}%`}
+          to="/soa"
+          sub={`readiness · ${data.iso_soa_coverage_pct.toFixed(0)}% of Annex A assessed`}
+          color={readinessColor(data.iso_soa_readiness_pct)}
+        />
+        <StatCard
+          label="SOC 2 Readiness"
+          value={`${data.soc2_readiness_pct.toFixed(0)}%`}
+          to="/soa"
+          sub={`${data.soc2_cc_assessed} of ${data.soc2_cc_total} Common Criteria assessed`}
+          color={readinessColor(data.soc2_readiness_pct)}
         />
         <StatCard
           label="Evidence Alerts"
