@@ -305,6 +305,344 @@ async def seed_demo_data(session: AsyncSession) -> None:
             status="Closed",
             tags=["data-centre", "availability", "business-continuity"],
         ),
+        # ---- R-11 ----
+        _risk(
+            title="Unpatched critical vulnerabilities on internet-facing infrastructure",
+            description=(
+                "Critical and high-severity vulnerabilities on the internet-facing web "
+                "application firewall, VPN concentrator, and FLEXCUBE application servers "
+                "remain unpatched beyond the Vulnerability Management Policy SLA of 7 days "
+                "(Critical) and 30 days (High), exposing the bank to remote exploitation."
+            ),
+            threat="Vulnerability exploitation",
+            impact="Critical", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Qualys authenticated scanning extended to all external assets. "
+                "Monthly patch window formalised with CAB approval. Emergency patch "
+                "procedure documented for CVSS >9.0. Tracked as audit finding AF-01."
+            ),
+            owner="Head of Infrastructure",
+            status="In Treatment",
+            tags=["vulnerability-management", "patching", "cbk"],
+            review_date=date(2026, 6, 10),
+            residual_impact="High", residual_likelihood="Unlikely",
+        ),
+        # ---- R-12 ----
+        _risk(
+            title="Legacy branch WAN links carrying unencrypted internal traffic",
+            description=(
+                "Three upcountry branches (Nakuru, Eldoret, Kisumu) connect to the core "
+                "network over legacy leased lines without IPSec encryption, exposing "
+                "customer data and FLEXCUBE session traffic to interception on the "
+                "carrier network."
+            ),
+            threat="Data interception / weak cryptography",
+            impact="High", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "IPSec tunnels being deployed across all branch links by Liquid Telecom. "
+                "12 of 15 branches migrated. Remaining 3 scheduled for Q3 2026."
+            ),
+            owner="Head of Infrastructure",
+            status="In Treatment",
+            tags=["network", "encryption", "branch"],
+            review_date=date(2026, 9, 30),
+            residual_impact="Medium", residual_likelihood="Rare",
+        ),
+        # ---- R-13 ----
+        _risk(
+            title="Azure storage misconfiguration exposing SIEM log archives",
+            description=(
+                "Misconfigured Azure blob storage containers holding archived Sentinel SIEM "
+                "logs and FLEXCUBE transaction extracts could be made publicly accessible "
+                "through an over-permissive access policy or an accidental anonymous-access "
+                "setting during routine administration."
+            ),
+            threat="Cloud misconfiguration",
+            impact="High", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Azure Policy deny-rules applied to block anonymous blob access tenant-wide. "
+                "Microsoft Defender for Cloud secure-score monitoring enabled with weekly "
+                "review by the security operations team."
+            ),
+            owner="Chief Information Security Officer",
+            status="In Treatment",
+            tags=["cloud", "azure", "misconfiguration", "data-exposure"],
+            review_date=date(2026, 8, 15),
+            residual_impact="Medium", residual_likelihood="Unlikely",
+        ),
+        # ---- R-14 ----
+        _risk(
+            title="Backup restoration failure — untested FLEXCUBE recovery path",
+            description=(
+                "Nightly FLEXCUBE database backups complete successfully but full restoration "
+                "has not been tested end to end since 2024. An undetected corruption or an "
+                "incomplete transaction-log chain could prevent recovery within the 4-hour RTO "
+                "following a ransomware event or storage failure."
+            ),
+            threat="Data loss / recovery failure",
+            impact="Critical", likelihood="Unlikely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Quarterly restore-to-isolated-environment test added to the BCP calendar. "
+                "First test completed May 2026: full restore achieved in 2h 51m. "
+                "Immutable backup copies retained at Rackspace Nairobi."
+            ),
+            owner="Chief Technology Officer",
+            status="In Treatment",
+            tags=["backup", "recovery", "business-continuity", "ransomware"],
+            review_date=date(2026, 8, 31),
+            residual_impact="High", residual_likelihood="Rare",
+        ),
+        # ---- R-15 ----
+        _risk(
+            title="SIEM coverage gaps — ATM and branch systems not forwarding logs",
+            description=(
+                "Azure Sentinel ingests logs from FLEXCUBE, the M-Pesa integration layer, and "
+                "Azure AD, but ATM controllers and branch file servers do not forward events. "
+                "Security incidents originating at branch level may go undetected, and the "
+                "gap undermines CBK incident-reporting obligations."
+            ),
+            threat="Detection gap / monitoring",
+            impact="Medium", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Syslog forwarding agents being rolled out to ATM controllers. "
+                "Branch file server onboarding scheduled after the Q3 network refresh."
+            ),
+            owner="Chief Information Security Officer",
+            status="Open",
+            tags=["siem", "monitoring", "detection", "atm"],
+            review_date=date(2026, 10, 31),
+        ),
+        # ---- R-16 ----
+        _risk(
+            title="Supplier concentration — single vendor for all digital banking channels",
+            description=(
+                "Craft Silicon Limited supplies the mobile app, internet banking portal, and "
+                "the integration middleware to FLEXCUBE. Vendor failure, contract dispute, or "
+                "a security incident at the supplier would simultaneously remove every "
+                "digital channel, with no substitutable alternative in place."
+            ),
+            threat="Supplier concentration / availability",
+            impact="Critical", likelihood="Unlikely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Source-code escrow agreement executed with a Nairobi escrow agent. "
+                "Exit plan drafted covering data extraction and a 6-month transition. "
+                "Second-source evaluation added to the FY2027 technology roadmap."
+            ),
+            owner="Chief Technology Officer",
+            status="In Treatment",
+            tags=["vendor", "concentration", "digital-banking", "tprm"],
+            review_date=date(2026, 12, 31),
+            residual_impact="High", residual_likelihood="Rare",
+        ),
+        # ---- R-17 ----
+        _risk(
+            title="Unvetted subcontractor access to ATM internals and branch server rooms",
+            description=(
+                "InfoMark Kenya Limited subcontracts ATM first-line maintenance to third-party "
+                "engineers who have not been background-screened by the bank and are not named "
+                "in the contract. These engineers obtain physical access to ATM safes, card "
+                "readers, and branch server rooms."
+            ),
+            threat="Third-party physical access",
+            impact="High", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Contract variation requiring named, screened engineers issued to InfoMark. "
+                "Vendor status moved to Under Review pending evidence of screening. "
+                "Escorted-access policy enforced for all branch server rooms from June 2026."
+            ),
+            owner="Head of Operations",
+            status="In Treatment",
+            tags=["vendor", "physical-security", "atm", "tprm"],
+            review_date=date(2026, 7, 31),
+        ),
+        # ---- R-18 ----
+        _risk(
+            title="Fourth-party risk — undisclosed sub-processors in the digital banking chain",
+            description=(
+                "Craft Silicon uses undisclosed cloud sub-processors for push-notification "
+                "delivery and analytics on the mobile banking app. Customer identifiers may be "
+                "transferred outside Kenya without an ODPC-compliant transfer mechanism or "
+                "the bank's knowledge."
+            ),
+            threat="Fourth-party / data transfer",
+            impact="Medium", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Sub-processor disclosure clause added at contract renewal. "
+                "DPIA updated to cover cross-border transfers. Awaiting a full "
+                "sub-processor register from the supplier."
+            ),
+            owner="Data Protection Officer",
+            status="Open",
+            tags=["vendor", "fourth-party", "privacy", "kdpa"],
+            review_date=date(2026, 9, 30),
+        ),
+        # ---- R-19 ----
+        _risk(
+            title="Vendor contracts lapsing without security review or renewal",
+            description=(
+                "Several supplier contracts, including InfoMark Kenya (expired 31 March 2026) "
+                "and Craft Silicon (expiring 31 December 2026), have reached or are approaching "
+                "expiry without a documented security review, leaving services delivered "
+                "without current contractual security obligations."
+            ),
+            threat="Contract lapse / governance",
+            impact="Medium", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Contract register migrated into the Lighthouse TPRM module with renewal "
+                "alerts at 90 days. Procurement now requires a security sign-off before "
+                "any renewal is executed."
+            ),
+            owner="Head of Compliance",
+            status="In Treatment",
+            tags=["vendor", "contract", "governance", "tprm"],
+            review_date=date(2026, 6, 30),
+            residual_impact="Low", residual_likelihood="Unlikely",
+        ),
+        # ---- R-20 ----
+        _risk(
+            title="Agency banking agent fraud — unauthorised customer transactions",
+            description=(
+                "Savanna Bank agency banking agents operating in retail outlets process "
+                "deposits and withdrawals on behalf of customers. Agents may under-record "
+                "deposits, retain customer cards or PINs, or process transactions without "
+                "customer authorisation."
+            ),
+            threat="Agent fraud / financial crime",
+            impact="Medium", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "SMS confirmation to customers on every agent transaction. "
+                "Agent transaction limits reduced. Mystery-shopper programme launched "
+                "across the agent network in Q2 2026."
+            ),
+            owner="Head of Operations",
+            status="In Treatment",
+            tags=["agency-banking", "fraud", "operations"],
+            review_date=date(2026, 8, 31),
+            residual_impact="Low", residual_likelihood="Possible",
+        ),
+        # ---- R-21 ----
+        _risk(
+            title="Tailgating and uncontrolled access to branch server rooms",
+            description=(
+                "Branch server rooms are secured by shared mechanical keys held at the branch "
+                "manager's desk rather than by badge-controlled access. There is no access log, "
+                "so entry by cleaners, contractors, or unauthorised staff cannot be evidenced "
+                "or reconstructed after an incident."
+            ),
+            threat="Physical access control",
+            impact="Medium", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Badge readers installed at 9 of 15 branches. Remaining 6 scheduled by "
+                "Q4 2026. Interim key-register sign-out sheet mandated at all branches."
+            ),
+            owner="Head of Operations",
+            status="Open",
+            tags=["physical-security", "branch", "access-control"],
+            review_date=date(2026, 11, 30),
+        ),
+        # ---- R-22 ----
+        _risk(
+            title="Key person dependency — single FLEXCUBE database administrator",
+            description=(
+                "One database administrator holds the operational knowledge and the privileged "
+                "credentials required to administer the FLEXCUBE Oracle estate. Absence, "
+                "resignation, or incapacity would leave the bank unable to perform recovery, "
+                "patching, or month-end processing."
+            ),
+            threat="Key person / operational resilience",
+            impact="High", likelihood="Possible",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Second DBA recruited, starting July 2026. Runbooks for month-end and "
+                "recovery procedures documented and peer-reviewed. Break-glass credentials "
+                "held in escrow with the CTO."
+            ),
+            owner="Chief Technology Officer",
+            status="In Treatment",
+            tags=["key-person", "resilience", "core-banking"],
+            review_date=date(2026, 7, 31),
+            residual_impact="Medium", residual_likelihood="Unlikely",
+        ),
+        # ---- R-23 ----
+        _risk(
+            title="EFT and cheque clearing reconciliation breaks",
+            description=(
+                "Daily reconciliation between the FLEXCUBE general ledger and the Kenya "
+                "Bankers Association clearing house occasionally shows unexplained breaks "
+                "that are cleared manually. Manual adjustment without independent review "
+                "could mask error or misappropriation."
+            ),
+            threat="Reconciliation / financial control",
+            impact="Medium", likelihood="Possible",
+            treatment="Accept",
+            treatment_notes=(
+                "Break volumes are low (average 3 per month, all under KES 20,000) and are "
+                "reviewed by Finance within 48 hours. Automated reconciliation tooling "
+                "assessed as disproportionate to the exposure. Accepted by ALCO, "
+                "reviewed annually."
+            ),
+            owner="Head of Finance",
+            status="Accepted",
+            tags=["reconciliation", "finance", "operations"],
+            review_date=date(2027, 3, 31),
+        ),
+        # ---- R-24 ----
+        _risk(
+            title="AML transaction monitoring — excessive false positives masking true alerts",
+            description=(
+                "The AML transaction monitoring system generates a high volume of false-positive "
+                "alerts because thresholds have not been tuned since implementation. Analyst "
+                "fatigue risks a genuine suspicious transaction being closed without "
+                "investigation, breaching reporting obligations to the Financial Reporting Centre."
+            ),
+            threat="Financial crime / regulatory",
+            impact="High", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Threshold tuning exercise with the vendor completed for cash-deposit and "
+                "M-Pesa typologies, reducing alert volume by 41%. Quarterly model review "
+                "added to the compliance calendar."
+            ),
+            owner="Head of Compliance",
+            status="In Treatment",
+            tags=["aml", "financial-crime", "regulatory", "monitoring"],
+            review_date=date(2026, 9, 30),
+            residual_impact="Medium", residual_likelihood="Possible",
+        ),
+        # ---- R-25 ----
+        _risk(
+            title="Board IT risk reporting insufficient for CBK governance expectations",
+            description=(
+                "IT and cyber risk is reported to the Board Risk Committee as a narrative "
+                "update without quantified metrics, trend data, or risk appetite thresholds. "
+                "This was raised in the 2024 CBK on-site examination and remains one of the "
+                "two open findings from that examination."
+            ),
+            threat="Governance / regulatory",
+            impact="Medium", likelihood="Likely",
+            treatment="Mitigate",
+            treatment_notes=(
+                "Quarterly Board IT risk dashboard designed, drawing metrics directly from "
+                "the Lighthouse risk register and control coverage reporting. "
+                "First formal submission tabled at the June 2026 Board Risk Committee."
+            ),
+            owner="Chief Information Security Officer",
+            status="In Treatment",
+            tags=["governance", "cbk", "board", "reporting"],
+            review_date=date(2026, 6, 30),
+            residual_impact="Low", residual_likelihood="Unlikely",
+        ),
     ]
 
     for r in risks:
@@ -335,6 +673,22 @@ async def seed_demo_data(session: AsyncSession) -> None:
             6: ["5.35"],            # CBK examination → legal compliance
             7: ["8.21", "8.22"],    # Mobile banking → network security, web filtering
             8: ["5.18", "8.2"],     # SWIFT CSP → privileged access
+            9: ["7.11", "8.14"],    # DC power failure → utilities, redundancy
+            10: ["8.8", "8.32"],    # Unpatched vulns → technical vulns, change mgmt
+            11: ["8.24", "8.21"],   # Unencrypted WAN → cryptography, network services
+            12: ["5.23", "8.9"],    # Azure misconfig → cloud services, configuration mgmt
+            13: ["8.13", "5.29"],   # Backup restore → backup, disruption readiness
+            14: ["8.15", "8.16"],   # SIEM gaps → logging, monitoring
+            15: ["5.21", "5.30"],   # Supplier concentration → ICT supply chain, BC readiness
+            16: ["5.19", "7.2"],    # Subcontractor access → supplier relationships, physical entry
+            17: ["5.22", "5.34"],   # Fourth-party → supplier monitoring, privacy
+            18: ["5.20", "5.22"],   # Contract lapse → supplier agreements, supplier monitoring
+            19: ["5.19", "8.16"],   # Agency fraud → supplier relationships, monitoring
+            20: ["7.2", "7.3"],     # Tailgating → physical entry, securing offices
+            21: ["5.2", "5.30"],    # Key person → roles/responsibilities, ICT BC readiness
+            22: ["5.4", "5.36"],    # Reconciliation → management responsibilities, compliance
+            23: ["5.36", "8.16"],   # AML monitoring → compliance, monitoring
+            24: ["5.1", "5.4"],     # Board reporting → policies, management responsibilities
         }
         for risk_idx, refs in mappings.items():
             for ref in refs:
@@ -519,6 +873,146 @@ async def seed_demo_data(session: AsyncSession) -> None:
             contract_start=date(2021, 4, 1), contract_end=date(2026, 3, 31),
             score=44.8,
         ),
+        dict(
+            name="Interswitch East Africa Limited",
+            description=(
+                "Card switching and payment processing. Routes all Visa and Mastercard "
+                "authorisations for the bank's issued cards and ATM acquiring traffic."
+            ),
+            category="Card Switching / Payments",
+            website="https://www.interswitchgroup.com",
+            tier=1, status="Active",
+            contact_name="Interswitch Service Delivery Manager",
+            contact_email="support@interswitchgroup.com",
+            contract_start=date(2018, 9, 1), contract_end=date(2027, 8, 31),
+            score=84.2,
+        ),
+        dict(
+            name="Thales DIS (HSM & Card Personalisation)",
+            description=(
+                "Hardware security modules protecting PIN blocks and card cryptographic keys, "
+                "plus card personalisation bureau services for debit card issuance."
+            ),
+            category="Cryptographic Hardware",
+            website="https://cpl.thalesgroup.com",
+            tier=1, status="Active",
+            contact_name="Thales Financial Services Team",
+            contact_email="banking.support@thalesgroup.com",
+            contract_start=date(2017, 11, 1), contract_end=date(2027, 10, 31),
+            score=93.5,
+        ),
+        dict(
+            name="Kenswitch Limited",
+            description=(
+                "Domestic ATM interswitching network enabling Savanna cardholders to "
+                "transact at other member banks' ATMs across Kenya."
+            ),
+            category="ATM Network / Interswitching",
+            website="https://www.kenswitch.com",
+            tier=2, status="Active",
+            contact_name="Kenswitch Operations Desk",
+            contact_email="operations@kenswitch.com",
+            contract_start=date(2015, 5, 1), contract_end=date(2026, 12, 31),
+            score=76.1,
+        ),
+        dict(
+            name="CrowdStrike Inc.",
+            description=(
+                "Falcon Prevent endpoint detection and response deployed across managed "
+                "endpoints and FLEXCUBE application servers. Cloud-delivered, US-hosted tenancy."
+            ),
+            category="Endpoint Security",
+            website="https://www.crowdstrike.com",
+            tier=2, status="Active",
+            contact_name="CrowdStrike EMEA Account Team",
+            contact_email="emea-support@crowdstrike.com",
+            contract_start=date(2024, 2, 1), contract_end=date(2027, 1, 31),
+            score=89.7,
+        ),
+        dict(
+            name="Rackspace Technology (Nairobi)",
+            description=(
+                "Offsite immutable backup repository for FLEXCUBE database backups and "
+                "document management archives. Contracted for 30-day immutability."
+            ),
+            category="Backup & Storage",
+            website="https://www.rackspace.com",
+            tier=2, status="Active",
+            contact_name="Rackspace Service Delivery",
+            contact_email="support@rackspace.co.ke",
+            contract_start=date(2023, 1, 1), contract_end=date(2026, 12, 31),
+            score=81.0,
+        ),
+        dict(
+            name="Liquid Intelligent Technologies Kenya",
+            description=(
+                "Branch WAN connectivity and primary internet transit. Provides leased lines "
+                "to all 15 branches and the IPSec overlay currently being deployed."
+            ),
+            category="Network & Connectivity",
+            website="https://liquid.tech",
+            tier=2, status="Active",
+            contact_name="Liquid Enterprise Account Manager",
+            contact_email="enterprise.ke@liquid.tech",
+            contract_start=date(2020, 10, 1), contract_end=date(2026, 9, 30),
+            score=71.5,
+        ),
+        dict(
+            name="Sysnet Global Solutions",
+            description=(
+                "Qualified Security Assessor (QSA) for the annual PCI DSS v4.0 assessment "
+                "of the card payment processing environment."
+            ),
+            category="Assurance / Audit",
+            website="https://www.sysnetgs.com",
+            tier=3, status="Active",
+            contact_name="Sysnet Lead QSA",
+            contact_email="qsa@sysnetgs.com",
+            contract_start=date(2022, 1, 1), contract_end=date(2026, 12, 31),
+            score=88.4,
+        ),
+        dict(
+            name="BSI Group Kenya",
+            description=(
+                "ISO/IEC 27001:2022 certification body. Conducted the Stage 1 and Stage 2 "
+                "certification audits and performs annual surveillance audits."
+            ),
+            category="Certification Body",
+            website="https://www.bsigroup.com",
+            tier=3, status="Active",
+            contact_name="BSI Lead Auditor",
+            contact_email="certification.ke@bsigroup.com",
+            contract_start=date(2025, 3, 1), contract_end=date(2028, 2, 29),
+            score=90.2,
+        ),
+        dict(
+            name="Atlassian Corporation",
+            description=(
+                "Jira Service Management hosting the DSAR ticketing workflow, change "
+                "management records, and IT service desk. Cloud-hosted outside Kenya."
+            ),
+            category="SaaS / Workflow",
+            website="https://www.atlassian.com",
+            tier=3, status="Active",
+            contact_name="Atlassian Cloud Support",
+            contact_email="support@atlassian.com",
+            contract_start=date(2023, 6, 1), contract_end=date(2026, 5, 31),
+            score=64.3,
+        ),
+        dict(
+            name="Deloitte & Touche Kenya",
+            description=(
+                "Co-sourced internal audit partner providing IT audit specialists for the "
+                "annual audit plan. Prior contract lapsed pending renewal and security review."
+            ),
+            category="Assurance / Audit",
+            website="https://www2.deloitte.com/ke",
+            tier=3, status="Under Review",
+            contact_name="Deloitte Internal Audit Partner",
+            contact_email="internalaudit@deloitte.co.ke",
+            contract_start=date(2022, 4, 1), contract_end=date(2026, 3, 31),
+            score=52.6,
+        ),
     ]
 
     vendor_objs = []
@@ -634,9 +1128,67 @@ async def seed_demo_data(session: AsyncSession) -> None:
                 "the BCP policy, preventing the finding from being closed."
             ),
             severity="Low",
-            status="Remediated",
+            status="In Remediation",
             owner="Chief Technology Officer",
             due_date=date(2026, 5, 31),
+        ),
+        # ---- Closed findings: the 4 CBK 2024 examination points already remediated ----
+        AuditFinding(
+            plan_id=plan.id,
+            title="Shared administrator credentials on FLEXCUBE application servers",
+            description=(
+                "The 2024 CBK examination found shared 'flexadmin' credentials in use across "
+                "the FLEXCUBE application tier, preventing attribution of privileged actions. "
+                "Closed: individual named accounts issued to all 7 administrators, shared "
+                "account disabled, and MFA enforced via Azure AD. Verified by re-test in "
+                "the FY2026 assessment."
+            ),
+            severity="High",
+            status="Closed",
+            owner="Head of Infrastructure",
+            due_date=date(2026, 3, 31),
+        ),
+        AuditFinding(
+            plan_id=plan.id,
+            title="No formal information security policy set approved by the Board",
+            description=(
+                "The 2024 CBK examination found the information security policy suite had not "
+                "been reviewed or Board-approved since 2021. Closed: full policy set rewritten "
+                "against ISO 27001:2022, approved by the Board Risk Committee in November 2025, "
+                "and published to all staff with acknowledgement tracking."
+            ),
+            severity="Medium",
+            status="Closed",
+            owner="Chief Information Security Officer",
+            due_date=date(2025, 12, 31),
+        ),
+        AuditFinding(
+            plan_id=plan.id,
+            title="Absence of network segmentation between SWIFT and office networks",
+            description=(
+                "The 2024 CBK examination found the SWIFT Alliance Gateway resided on the "
+                "general office VLAN, contrary to SWIFT CSP Control 1.1. Closed: dedicated "
+                "SWIFT secure zone implemented with firewall enforcement and jump-host access "
+                "only. Confirmed during the FY2026 assessment."
+            ),
+            severity="High",
+            status="Closed",
+            owner="Head of Infrastructure",
+            due_date=date(2026, 1, 31),
+        ),
+        AuditFinding(
+            plan_id=plan.id,
+            title="Security awareness training not completed by all staff",
+            description=(
+                "The 2024 CBK examination found security awareness completion at 61% against "
+                "a policy target of 95%. Closed: training moved into onboarding and made an "
+                "annual mandatory module with line-manager escalation. Completion reached "
+                "97.2% (240/247 staff) at the April 2026 checkpoint."
+            ),
+            severity="Medium",
+            status="Closed",
+            owner="Head of Human Resources",
+            due_date=date(2026, 4, 30),
         ),
     ]
     for finding in findings:
