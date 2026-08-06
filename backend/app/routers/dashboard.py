@@ -54,9 +54,15 @@ async def get_dashboard(
 
     # Count distinct risks that have a control mapped; join to Risk so the
     # coverage figure respects the selected client.
+    # The numerator must carry the same status filter as the denominator above.
+    # Without it, a Closed or Accepted risk that has a control mapped counts as
+    # covered while being excluded from the total, producing a coverage figure
+    # over 100%.
     covered_query = select(func.count(func.distinct(RiskControl.risk_id))).select_from(
         RiskControl
-    ).join(Risk, Risk.id == RiskControl.risk_id)
+    ).join(Risk, Risk.id == RiskControl.risk_id).where(
+        Risk.status.notin_(["Closed", "Accepted"])
+    )
     if client_id:
         covered_query = covered_query.where(Risk.client_id == client_id)
     covered_risks = (await db.execute(covered_query)).scalar() or 0
