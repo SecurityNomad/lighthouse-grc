@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar'
 import LoginPage from './pages/LoginPage'
 import RisksPage from './pages/RisksPage'
 import ControlsPage from './pages/ControlsPage'
+import SoAPage from './pages/SoAPage'
 import EvidencePage from './pages/EvidencePage'
 import VendorsPage from './pages/VendorsPage'
 import AuditPage from './pages/AuditPage'
@@ -56,6 +57,7 @@ export default function App() {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/risks" element={<RisksPage />} />
                   <Route path="/controls" element={<ControlsPage />} />
+                  <Route path="/soa" element={<SoAPage />} />
                   <Route path="/evidence" element={<EvidencePage />} />
                   <Route path="/vendors" element={<VendorsPage />} />
                   <Route path="/audits" element={<AuditPage />} />

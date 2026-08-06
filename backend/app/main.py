@@ -1,12 +1,15 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 import logging
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import AsyncSessionLocal
-from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard
+from app.routers import risks, controls, control_mapping, evidence, tprm, audit, dashboard, soa
 from app.routers import auth as auth_router, clients as clients_router, admin as admin_router
 from app.routers import plugins as plugins_router
 from app.seed import seed_frameworks, seed_vendor_questions, seed_admin_user
@@ -73,6 +76,7 @@ app.include_router(clients_router.router, prefix="/api/v1", tags=["clients"], de
 app.include_router(risks.router, prefix="/api/v1/risks", tags=["risks"], dependencies=_auth_dep)
 app.include_router(controls.router, prefix="/api/v1", tags=["controls"], dependencies=_auth_dep)
 app.include_router(control_mapping.router, prefix="/api/v1", tags=["control-mapping"], dependencies=_auth_dep)
+app.include_router(soa.router, prefix="/api/v1", tags=["soa"], dependencies=_auth_dep)
 app.include_router(evidence.router, prefix="/api/v1/evidence", tags=["evidence"], dependencies=_auth_dep)
 app.include_router(tprm.router, prefix="/api/v1", tags=["tprm"], dependencies=_auth_dep)
 app.include_router(audit.router, prefix="/api/v1", tags=["audit"], dependencies=_auth_dep)
@@ -80,11 +84,53 @@ app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"], depen
 app.include_router(plugins_router.router, prefix="/api/v1", tags=["plugins"], dependencies=_auth_dep)
 
 
-@app.get("/", tags=["health"])
-async def root():
-    return {"status": "ok", "service": "lighthouse-api", "version": APP_VERSION}
-
-
 @app.get("/health", tags=["health"])
 async def health():
     return {"status": "healthy"}
+
+
+# ---------------------------------------------------------------------------
+# Static frontend (single-app deployment)
+#
+# In the Docker Compose development setup the frontend is served separately by
+# Vite, and this block is inert. In the Fly.io image the multi-stage build drops
+# the compiled SPA at settings.static_dir, and the API process serves it too —
+# one machine instead of two, and no CORS between them.
+#
+# Mounted last so every /api/v1, /docs, /redoc, and /health route above wins.
+# ---------------------------------------------------------------------------
+_static_dir = Path(settings.static_dir)
+
+if _static_dir.is_dir():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=_static_dir / "assets"),
+        name="assets",
+    )
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        """Serve the built SPA, falling back to index.html for client routes.
+
+        A request for an unknown /api/... path must still 404 as JSON rather
+        than silently returning the HTML shell, which would turn an API typo
+        into a confusing parse error on the client.
+        """
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+
+        candidate = (_static_dir / full_path).resolve()
+        # Containment check — never serve outside the static root.
+        if (
+            full_path
+            and _static_dir.resolve() in candidate.parents
+            and candidate.is_file()
+        ):
+            return FileResponse(candidate)
+
+        return FileResponse(_static_dir / "index.html")
+
+else:
+    @app.get("/", tags=["health"])
+    async def root():
+        return {"status": "ok", "service": "lighthouse-api", "version": APP_VERSION}

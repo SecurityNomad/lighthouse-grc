@@ -1,0 +1,54 @@
+# Fly.io configuration for the Lighthouse public demo (WBS 1.5.5).
+#
+# Single app serving both the API and the compiled SPA. Database is a separate
+# Fly Postgres cluster attached with `fly postgres attach`, which injects
+# DATABASE_URL as a secret.
+#
+# Deploy steps are documented in docs/deployment.md.
+
+app = "lighthouse-grc"
+primary_region = "lhr"          # London — closest Fly region to the Nairobi demo narrative
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Migrations run in a one-off machine before the new release goes live. If this
+# fails, the deploy aborts and the previous version keeps serving.
+[deploy]
+  release_command = "alembic upgrade head"
+
+[env]
+  ENVIRONMENT = "production"
+  # Seeds the Savanna Commercial Bank anchor tenant on first boot. The seeder is
+  # idempotent (gated on a sentinel risk title), so restarts do not duplicate it.
+  SEED_DEMO_DATA = "true"
+  STATIC_DIR = "/app/static"
+  UPLOAD_DIR = "/app/uploads"
+  # Same-origin in this topology; no cross-origin browser traffic to allow.
+  CORS_ORIGINS = "[]"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  # Cost control for a portfolio demo: the machine sleeps when idle and wakes on
+  # request. First hit after a sleep pays a cold start, which is an acceptable
+  # trade for not paying for an always-on machine.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 40
+    hard_limit = 80
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

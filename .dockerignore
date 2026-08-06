@@ -1,0 +1,34 @@
+# Keep the build context small and prevent local state leaking into the image.
+
+.git
+.github
+.claude
+.impeccable
+
+# Node / Python build artefacts — rebuilt inside the image
+**/node_modules
+**/dist
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.mypy_cache
+backend/.venv
+
+# Local secrets and databases — must never reach a published image
+.env
+.env.*
+!.env.example
+**/*.sqlite
+**/*.db
+
+# Local uploads; the demo starts with an empty uploads directory
+backend/uploads
+
+# Docs and working files that do not affect the runtime
+*.md
+!README.md
+docs
+PM
+TASKS.md
+REVIEW_*.md
+00_STATUS.md
