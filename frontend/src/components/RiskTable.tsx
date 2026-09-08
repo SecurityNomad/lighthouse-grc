@@ -1,4 +1,5 @@
 import { Risk } from '../api/risks'
+import { SEVERITY_BADGE } from '../lib/badges'
 
 interface RiskTableProps {
   risks: Risk[]
@@ -6,13 +7,6 @@ interface RiskTableProps {
   onEdit: (risk: Risk) => void
   onDelete: (risk: Risk) => void
   onMapControls: (risk: Risk) => void
-}
-
-const impactBadge: Record<string, string> = {
-  Critical: 'badge-red',
-  High: 'badge-orange',
-  Medium: 'badge-yellow',
-  Low: 'badge-green',
 }
 
 const statusBadge: Record<string, string> = {
@@ -78,7 +72,7 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapCon
                   )}
                 </td>
                 <td className="whitespace-nowrap">
-                  <span className={`badge ${impactBadge[risk.impact] ?? 'badge-gray'}`}>{risk.impact}</span>
+                  <span className={`badge ${SEVERITY_BADGE[risk.impact] ?? 'badge-gray'}`}>{risk.impact}</span>
                 </td>
                 <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                   {risk.likelihood}

@@ -14,33 +14,33 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* ── Neumorphic theme tokens ───────────────────────────────────
+   The paired shadow/highlight and the focus ring are the only values that
+   differ between light and dark, so they live here as custom properties and
+   every .neu-* rule below is written once. */
+:root {
+  --neu-lo: #c5ccd6;   /* shadow    */
+  --neu-hi: #ffffff;   /* highlight */
+  --neu-ring: #6366f1;
+}
+.dark {
+  --neu-lo: #090d17;
+  --neu-hi: #192236;
+  --neu-ring: #818cf8;
+}
+
 /* ── Neumorphic component classes ──────────────────────────── */
 @layer components {
 
   /* Cards / panels */
   .neu-card {
     @apply bg-slate-100 dark:bg-slate-900 rounded-2xl;
-    box-shadow: 6px 6px 14px #c5ccd6, -6px -6px 14px #ffffff;
-  }
-  .dark .neu-card {
-    box-shadow: 6px 6px 14px #090d17, -6px -6px 14px #192236;
+    box-shadow: 6px 6px 14px var(--neu-lo), -6px -6px 14px var(--neu-hi);
   }
 
   .neu-card-sm {
     @apply bg-slate-100 dark:bg-slate-900 rounded-xl;
-    box-shadow: 4px 4px 10px #c5ccd6, -4px -4px 10px #ffffff;
-  }
-  .dark .neu-card-sm {
-    box-shadow: 4px 4px 10px #090d17, -4px -4px 10px #192236;
-  }
-
-  /* Inset (inputs, search bars) */
-  .neu-inset {
-    @apply bg-slate-100 dark:bg-slate-900 rounded-xl;
-    box-shadow: inset 3px 3px 7px #c5ccd6, inset -3px -3px 7px #ffffff;
-  }
-  .dark .neu-inset {
-    box-shadow: inset 3px 3px 7px #090d17, inset -3px -3px 7px #192236;
+    box-shadow: 4px 4px 10px var(--neu-lo), -4px -4px 10px var(--neu-hi);
   }
 
   /* Form inputs */
@@ -50,17 +50,11 @@ body {
            placeholder-slate-400 dark:placeholder-slate-500
            px-3 py-2.5;
     border: none;
-    box-shadow: inset 3px 3px 7px #c5ccd6, inset -3px -3px 7px #ffffff;
+    box-shadow: inset 3px 3px 7px var(--neu-lo), inset -3px -3px 7px var(--neu-hi);
     transition: box-shadow 0.15s ease;
   }
-  .dark .neu-input {
-    box-shadow: inset 3px 3px 7px #090d17, inset -3px -3px 7px #192236;
-  }
   .neu-input:focus {
-    box-shadow: inset 3px 3px 7px #c5ccd6, inset -3px -3px 7px #ffffff, 0 0 0 2px #6366f1;
-  }
-  .dark .neu-input:focus {
-    box-shadow: inset 3px 3px 7px #090d17, inset -3px -3px 7px #192236, 0 0 0 2px #818cf8;
+    box-shadow: inset 3px 3px 7px var(--neu-lo), inset -3px -3px 7px var(--neu-hi), 0 0 0 2px var(--neu-ring);
   }
 
   /* Select inputs */
@@ -69,7 +63,7 @@ body {
            text-slate-900 dark:text-slate-100 outline-none
            px-3 py-2.5 cursor-pointer;
     border: none;
-    box-shadow: inset 3px 3px 7px #c5ccd6, inset -3px -3px 7px #ffffff;
+    box-shadow: inset 3px 3px 7px var(--neu-lo), inset -3px -3px 7px var(--neu-hi);
     appearance: none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
@@ -79,14 +73,10 @@ body {
     transition: box-shadow 0.15s ease;
   }
   .dark .neu-select {
-    box-shadow: inset 3px 3px 7px #090d17, inset -3px -3px 7px #192236;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   }
   .neu-select:focus {
-    box-shadow: inset 3px 3px 7px #c5ccd6, inset -3px -3px 7px #ffffff, 0 0 0 2px #6366f1;
-  }
-  .dark .neu-select:focus {
-    box-shadow: inset 3px 3px 7px #090d17, inset -3px -3px 7px #192236, 0 0 0 2px #818cf8;
+    box-shadow: inset 3px 3px 7px var(--neu-lo), inset -3px -3px 7px var(--neu-hi), 0 0 0 2px var(--neu-ring);
   }
 
   /* Filter pill — inactive */
@@ -94,10 +84,7 @@ body {
     @apply bg-slate-100 dark:bg-slate-900 rounded-full text-xs font-medium
            text-slate-600 dark:text-slate-400
            px-3.5 py-1.5 transition-all cursor-pointer;
-    box-shadow: 3px 3px 6px #c5ccd6, -3px -3px 6px #ffffff;
-  }
-  .dark .neu-pill {
-    box-shadow: 3px 3px 6px #090d17, -3px -3px 6px #192236;
+    box-shadow: 3px 3px 6px var(--neu-lo), -3px -3px 6px var(--neu-hi);
   }
   .neu-pill:hover {
     @apply text-slate-800 dark:text-slate-200;
@@ -114,23 +101,14 @@ body {
   .neu-btn {
     @apply bg-slate-100 dark:bg-slate-900 rounded-xl text-sm font-medium
            text-slate-700 dark:text-slate-300 px-4 py-2 transition-all;
-    box-shadow: 4px 4px 8px #c5ccd6, -4px -4px 8px #ffffff;
-  }
-  .dark .neu-btn {
-    box-shadow: 4px 4px 8px #090d17, -4px -4px 8px #192236;
+    box-shadow: 4px 4px 8px var(--neu-lo), -4px -4px 8px var(--neu-hi);
   }
   .neu-btn:hover {
     @apply text-slate-900 dark:text-white;
-    box-shadow: 5px 5px 10px #c5ccd6, -5px -5px 10px #ffffff;
-  }
-  .dark .neu-btn:hover {
-    box-shadow: 5px 5px 10px #090d17, -5px -5px 10px #192236;
+    box-shadow: 5px 5px 10px var(--neu-lo), -5px -5px 10px var(--neu-hi);
   }
   .neu-btn:active {
-    box-shadow: inset 2px 2px 5px #c5ccd6, inset -2px -2px 5px #ffffff;
-  }
-  .dark .neu-btn:active {
-    box-shadow: inset 2px 2px 5px #090d17, inset -2px -2px 5px #192236;
+    box-shadow: inset 2px 2px 5px var(--neu-lo), inset -2px -2px 5px var(--neu-hi);
   }
 
   /* Primary CTA button */
@@ -234,11 +212,6 @@ body {
   .badge-purple { @apply bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400; }
   .badge-gray   { @apply bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400; }
   .badge-indigo { @apply bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400; }
-}
-
-/* Skeleton pulse dark mode */
-.dark .animate-pulse .bg-gray-200 {
-  @apply bg-slate-700;
 }
 
 /* Scrollbar */

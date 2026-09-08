@@ -24,7 +24,6 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
       CORS_ORIGINS: ${CORS_ORIGINS}
-      ENVIRONMENT: ${ENVIRONMENT}
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
     ports:
       - "8000:8000"

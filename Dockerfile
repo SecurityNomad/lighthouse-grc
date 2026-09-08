@@ -15,8 +15,8 @@ WORKDIR /build
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-# Same-origin in this topology, so the client uses relative /api paths.
-ENV VITE_API_URL=""
+# Same-origin in this topology: the client calls relative /api paths, so there
+# is no API base URL to bake in. (VITE_API_URL only feeds the dev-server proxy.)
 RUN npm run build
 
 # ---- Stage 2: python dependencies ------------------------------------------

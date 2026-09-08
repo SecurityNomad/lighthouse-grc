@@ -1,7 +1,6 @@
 import api from './client'
 
 export interface PluginStatus {
-  configured: boolean
   healthy: boolean
   mode: 'live' | 'demo' | 'disabled'
   message: string
@@ -22,7 +21,6 @@ export interface PluginRunResult {
   created: number
   skipped: number
   message: string
-  errors: string[]
 }
 
 export const pluginsApi = {

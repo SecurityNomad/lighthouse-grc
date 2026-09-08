@@ -23,7 +23,6 @@ class Settings(BaseSettings):
         return v
     secret_key: str = "change-me"
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
-    environment: str = "development"
     upload_dir: str = "/app/uploads"
     seed_demo_data: bool = False
     # Compiled SPA location. Populated by the multi-stage production image; the

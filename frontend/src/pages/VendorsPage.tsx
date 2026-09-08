@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { vendorsApi, type Vendor, type VendorCreate } from '../api/tprm'
 import { useForm } from 'react-hook-form'
 import { useModalA11y } from '../lib/useModalA11y'
+import { SEVERITY_BADGE } from '../lib/badges'
 
 const TIER_BADGE: Record<number, string> = {
   1: 'badge-red',
@@ -16,13 +17,7 @@ const TIER_LABELS: Record<number, string> = {
   3: 'Tier 3 — Standard',
 }
 
-const RATING_BADGE: Record<string, string> = {
-  Critical: 'badge-red',
-  High: 'badge-orange',
-  Medium: 'badge-yellow',
-  Low: 'badge-green',
-  Unrated: 'badge-gray',
-}
+const RATING_BADGE: Record<string, string> = { ...SEVERITY_BADGE, Unrated: 'badge-gray' }
 
 const VENDOR_STATUS_BADGE: Record<string, string> = {
   Active: 'badge-green',

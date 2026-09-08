@@ -31,12 +31,12 @@ class SlackPlugin(NotificationPlugin):
 
     def status(self) -> PluginStatus:
         if not settings.slack_plugin_enabled:
-            return PluginStatus(configured=False, healthy=False, mode="disabled",
+            return PluginStatus(healthy=False, mode="disabled",
                                 message="Plugin disabled via configuration.")
         if not settings.slack_webhook_url:
-            return PluginStatus(configured=True, healthy=True, mode="demo",
+            return PluginStatus(healthy=True, mode="demo",
                                 message="Demo mode — messages are logged, not posted.")
-        return PluginStatus(configured=True, healthy=True, mode="live",
+        return PluginStatus(healthy=True, mode="live",
                             message="Live mode — posting to configured webhook.")
 
     def _format(self, event: NotificationEvent) -> str:

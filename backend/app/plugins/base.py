@@ -103,9 +103,6 @@ class PluginRegistry:
     def of_type(self, plugin_type: PluginType) -> List[Plugin]:
         return [p for p in self._plugins.values() if p.plugin_type == plugin_type]
 
-    def clear(self) -> None:  # test helper
-        self._plugins.clear()
-
 
 registry = PluginRegistry()
 
