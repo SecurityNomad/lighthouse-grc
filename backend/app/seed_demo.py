@@ -21,6 +21,7 @@ from app.models.control_mapping import RiskControl
 from app.models.evidence import Evidence
 from app.models.tprm import Vendor, VendorAssessment
 from app.models.audit import AuditPlan, AuditItem, AuditFinding
+from app.models.soa import ControlApplicability
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,18 @@ def _risk(title, description, threat, impact, likelihood, treatment, owner, stat
             IMPACT_SCORE_MAP[residual_impact] * LIKELIHOOD_SCORE_MAP[residual_likelihood]
             if residual_impact and residual_likelihood else None
         ),
+    )
+
+
+def _soa(control_id, applicable, status, justification, owner, reviewed=None):
+    return ControlApplicability(
+        id=uuid.uuid4(),
+        control_id=control_id,
+        applicable=applicable,
+        implementation_status=status,
+        justification=justification,
+        owner=owner,
+        last_reviewed=reviewed or date(2026, 4, 30),
     )
 
 
@@ -1194,5 +1207,201 @@ async def seed_demo_data(session: AsyncSession) -> None:
     for finding in findings:
         session.add(finding)
 
+    await session.flush()
+
+    # ------------------------------------------------------------------
+    # 6. Statement of Applicability + SOC 2 readiness (WBS 1.5.2, 1.5.3)
+    # ------------------------------------------------------------------
+    await _seed_soa(session)
+
     await session.commit()
     logger.info("Savanna Commercial Bank demo data seeded successfully")
+
+
+# ---------------------------------------------------------------------------
+# Statement of Applicability
+# ---------------------------------------------------------------------------
+
+# ISO 27001 controls whose position differs from the certified-baseline default.
+# Savanna holds an ISO 27001:2022 certificate (awarded October 2025), so the
+# default position is Implemented; these are the controls where open risks and
+# audit findings say otherwise. Each justification ties back to a specific risk
+# or finding elsewhere in this seed.
+_ISO_OVERRIDES = {
+    "5.2": ("Partially Implemented",
+            "Security roles are defined, but Board-level IT risk reporting lacks quantified "
+            "metrics and appetite thresholds (open CBK 2024 examination finding). "
+            "Quarterly Board dashboard designed; first submission June 2026.",
+            "Chief Information Security Officer"),
+    "5.4": ("Partially Implemented",
+            "Management direction is documented, but reconciliation break approvals and "
+            "Board IT risk oversight are not yet evidenced to the standard the CBK expects.",
+            "Head of Compliance"),
+    "5.7": ("Planned",
+            "Threat intelligence consumption is ad hoc. A MISP feed integration has been "
+            "implemented in the GRC platform but is not yet operationalised into the "
+            "risk assessment cycle.",
+            "Chief Information Security Officer"),
+    "5.18": ("Partially Implemented",
+             "Access rights are reviewed quarterly for FLEXCUBE, but the SWIFT Alliance "
+             "Gateway still uses shared administrator credentials. PAW deployment and "
+             "named accounts due 30 June 2026.",
+             "Chief Information Security Officer"),
+    "5.19": ("Partially Implemented",
+             "Supplier relationships are governed by contract, but InfoMark Kenya "
+             "subcontracts ATM maintenance to engineers who have not been screened by "
+             "the bank. Contract variation issued.",
+             "Head of Operations"),
+    "5.20": ("Partially Implemented",
+             "Security requirements are included in new agreements. Several legacy "
+             "contracts, including InfoMark (expired March 2026), predate the current "
+             "clause set and are being renegotiated.",
+             "Head of Compliance"),
+    "5.22": ("Partially Implemented",
+             "Supplier performance is reviewed annually. Fourth-party sub-processors used "
+             "by Craft Silicon for push notifications and analytics remain undisclosed; "
+             "a full sub-processor register has been requested.",
+             "Data Protection Officer"),
+    "5.23": ("Partially Implemented",
+             "Azure Policy denies anonymous blob access tenant-wide and Defender for Cloud "
+             "monitoring is enabled, but a formal cloud security baseline standard has not "
+             "yet been ratified.",
+             "Chief Information Security Officer"),
+    "6.7": (None,  # excluded
+            "Excluded. Remote access to in-scope systems (FLEXCUBE, SWIFT, the M-Pesa "
+            "integration layer) is prohibited by policy; all processing is performed from "
+            "bank premises over managed networks. This exclusion is reviewed annually and "
+            "will be reversed if remote working is introduced.",
+            "Chief Information Security Officer"),
+    "7.2": ("Partially Implemented",
+            "Badge-controlled entry is live at 9 of 15 branches. The remaining 6 rely on a "
+            "shared mechanical key with a manual sign-out register; rollout completes Q4 2026.",
+            "Head of Operations"),
+    "7.3": ("Partially Implemented",
+            "Branch server rooms at 6 sites are not yet badge-controlled and produce no "
+            "access log, so entry cannot be reconstructed after an incident.",
+            "Head of Operations"),
+    "8.2": ("Partially Implemented",
+            "Privileged access is individually named and MFA-enforced on FLEXCUBE following "
+            "closure of the 2024 CBK finding. The SWIFT gateway remains outstanding.",
+            "Head of Infrastructure"),
+    "8.8": ("Partially Implemented",
+            "Authenticated scanning covers all external assets and a monthly patch window is "
+            "in place, but the 7-day critical remediation SLA was breached in April 2026 "
+            "(CVE-2026-11423 open 22 days). Open audit finding.",
+            "Head of Infrastructure"),
+    "8.15": ("Partially Implemented",
+             "FLEXCUBE, the M-Pesa integration layer, and Azure AD forward to Sentinel. "
+             "ATM controllers and branch file servers do not yet log centrally.",
+             "Chief Information Security Officer"),
+    "8.16": ("Partially Implemented",
+             "SIEM correlation rules cover payments and authentication. Branch-level activity "
+             "is outside monitoring coverage, and AML alert thresholds are still being tuned.",
+             "Chief Information Security Officer"),
+    "8.24": ("Partially Implemented",
+             "TLS and HSM-backed key management are in place for card and payment flows. "
+             "Three upcountry branch WAN links still carry unencrypted internal traffic "
+             "pending IPSec rollout.",
+             "Head of Infrastructure"),
+    "8.28": ("Planned",
+             "Secure coding standards apply to the in-house integration layer but have not "
+             "been contractually imposed on Craft Silicon. Scheduled for the 2026 contract "
+             "renewal.",
+             "Chief Technology Officer"),
+    "8.34": ("Planned",
+             "Audit testing of production systems is coordinated informally. A formal "
+             "protection procedure is drafted and awaiting approval.",
+             "Head of Internal Audit"),
+}
+
+# SOC 2 Common Criteria assessed so far. Savanna is not pursuing SOC 2
+# certification (it is on the ISO 27001 track); this is the assurance posture it
+# presents to digital-channel and API partners, per CHG-012. Deliberately
+# partial — the unassessed criteria show the SoA as a live document.
+_SOC2_ASSESSED = {
+    "CC1.1": ("Implemented", "Code of conduct and ethics policy approved by the Board; annual staff attestation at 97.2%.", "Head of Human Resources"),
+    "CC1.2": ("Implemented", "Board Risk Committee provides independent oversight of the security programme; charter reviewed 2025.", "Chief Executive Officer"),
+    "CC1.3": ("Implemented", "Organisational structure, reporting lines, and security authorities documented in the ISMS manual.", "Chief Information Security Officer"),
+    "CC1.4": ("Partially Implemented", "Competence requirements defined for security roles; the second FLEXCUBE DBA post is unfilled until July 2026.", "Head of Human Resources"),
+    "CC1.5": ("Implemented", "Individual performance objectives include security accountability for all managers.", "Head of Human Resources"),
+    "CC2.1": ("Implemented", "Security metrics and risk information flow to the Board Risk Committee quarterly.", "Chief Information Security Officer"),
+    "CC2.2": ("Implemented", "Security policies published to all staff with acknowledgement tracking; awareness training mandatory and annual.", "Chief Information Security Officer"),
+    "CC2.3": ("Partially Implemented", "Customer-facing security commitments are published, but partner-facing communication is handled case by case.", "Head of Digital Banking"),
+    "CC3.1": ("Implemented", "Risk objectives defined in the ISMS scope; risk register maintained in the GRC platform.", "Chief Information Security Officer"),
+    "CC3.2": ("Implemented", "25 risks identified and assessed with impact, likelihood, and residual scoring.", "Chief Information Security Officer"),
+    "CC3.3": ("Partially Implemented", "Fraud risk is assessed for insider RTGS transfers and agency banking, but no consolidated fraud risk assessment exists.", "Head of Compliance"),
+    "CC3.4": ("Partially Implemented", "Change to the M-Pesa and mobile banking estate is assessed, but change-driven risk reassessment is not consistently evidenced.", "Chief Technology Officer"),
+    "CC4.1": ("Implemented", "Internal audit plan executed with Deloitte co-source; FY2026 assessment covers all in-scope systems.", "Head of Internal Audit"),
+    "CC4.2": ("Implemented", "Findings tracked to closure with owners and due dates; 4 of the 2024 CBK findings closed.", "Chief Information Security Officer"),
+    "CC5.1": ("Implemented", "Control activities selected against ISO 27001:2022 Annex A and documented in the SoA.", "Chief Information Security Officer"),
+    "CC5.2": ("Partially Implemented", "Technology controls are largely automated; branch physical controls remain partly manual.", "Head of Operations"),
+    "CC5.3": ("Implemented", "Policies and procedures deployed with named owners and review cycles.", "Chief Information Security Officer"),
+    "CC6.1": ("Partially Implemented", "Logical access is role-based and MFA-enforced except on the SWIFT Alliance Gateway.", "Head of Infrastructure"),
+    "CC6.2": ("Implemented", "User registration and de-registration follow a documented joiner/mover/leaver process.", "Head of Human Resources"),
+    "CC6.3": ("Partially Implemented", "Quarterly access reviews cover FLEXCUBE; branch file server permissions are not yet in scope.", "Head of Infrastructure"),
+    "CC6.6": ("Partially Implemented", "Perimeter controls and WAF are in place; three branch links await IPSec encryption.", "Head of Infrastructure"),
+    "CC6.7": ("Implemented", "Data in transit is encrypted for all customer-facing channels; HSMs protect PIN and key material.", "Head of Infrastructure"),
+    "CC6.8": ("Implemented", "CrowdStrike Falcon deployed on 98.4% of managed endpoints with central alerting.", "Chief Information Security Officer"),
+    "CC7.1": ("Partially Implemented", "Vulnerability scanning is continuous, but remediation SLAs were breached in April 2026.", "Head of Infrastructure"),
+    "CC7.2": ("Partially Implemented", "Sentinel monitors core systems; ATM and branch estate are outside coverage.", "Chief Information Security Officer"),
+    "CC7.3": ("Implemented", "Security incident response plan tested; CBK notification template prepared.", "Chief Information Security Officer"),
+    "CC7.4": ("Implemented", "Incidents triaged, contained, and reported per the incident management procedure.", "Chief Information Security Officer"),
+    "CC7.5": ("Implemented", "Recovery procedures tested via the Q4 2025 DR switchover (RTO 3h42m against a 4h target).", "Chief Technology Officer"),
+    "CC8.1": ("Partially Implemented", "Change management operates through Jira with CAB approval; emergency change evidence is inconsistent.", "Chief Technology Officer"),
+    "CC9.1": ("Implemented", "Business continuity plan maintained with annual DR activation from the Upper Hill site.", "Chief Technology Officer"),
+    "CC9.2": ("Partially Implemented", "Vendor due diligence is tiered and scored, but fourth-party visibility is incomplete.", "Head of Compliance"),
+}
+
+
+async def _seed_soa(session: AsyncSession) -> None:
+    """Seed the Statement of Applicability for ISO 27001 and SOC 2.
+
+    ISO: every Annex A control gets a position (ISO requires the SoA to account
+    for all of them). The default is Implemented, reflecting the October 2025
+    certificate; _ISO_OVERRIDES carries the exceptions.
+
+    SOC 2: only the criteria in _SOC2_ASSESSED are given a position, leaving the
+    rest genuinely unassessed.
+    """
+    frameworks = {
+        f.slug: f
+        for f in (await session.execute(select(Framework))).scalars().all()
+    }
+
+    iso = frameworks.get("iso27001")
+    if iso:
+        controls = (await session.execute(
+            select(Control).where(Control.framework_id == iso.id)
+        )).scalars().all()
+        for c in controls:
+            override = _ISO_OVERRIDES.get(c.ref)
+            if override:
+                status, justification, owner = override
+                if status is None:  # excluded from scope
+                    session.add(_soa(c.id, False, "Not Implemented", justification, owner))
+                else:
+                    session.add(_soa(c.id, True, status, justification, owner))
+            else:
+                session.add(_soa(
+                    c.id, True, "Implemented",
+                    "Implemented and evidenced during the BSI Stage 2 certification audit "
+                    "(October 2025); no non-conformity raised at the most recent "
+                    "surveillance audit.",
+                    "Chief Information Security Officer",
+                ))
+        logger.info("Seeded ISO 27001 SoA: %d controls", len(controls))
+
+    soc2 = frameworks.get("soc2")
+    if soc2:
+        controls = (await session.execute(
+            select(Control).where(Control.framework_id == soc2.id)
+        )).scalars().all()
+        seeded = 0
+        for c in controls:
+            assessed = _SOC2_ASSESSED.get(c.ref)
+            if not assessed:
+                continue
+            status, justification, owner = assessed
+            session.add(_soa(c.id, True, status, justification, owner))
+            seeded += 1
+        logger.info("Seeded SOC 2 readiness: %d criteria assessed", seeded)

@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { controlsApi, type Framework } from '../api/controls'
+import { FRAMEWORK_REF_BADGE } from '../lib/badges'
 
 const FRAMEWORK_BADGE: Record<string, string> = {
   soc2: 'badge badge-blue',
   iso27001: 'badge badge-green',
   cis_v8: 'badge badge-purple',
-}
-
-const FRAMEWORK_REF_BADGE: Record<string, string> = {
-  soc2: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  iso27001: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  cis_v8: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
 }
 
 export default function ControlsPage() {

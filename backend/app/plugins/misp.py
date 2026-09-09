@@ -70,15 +70,15 @@ class MISPPlugin(RiskSourcePlugin):
 
     def status(self) -> PluginStatus:
         if not settings.misp_plugin_enabled:
-            return PluginStatus(configured=False, healthy=False, mode="disabled",
+            return PluginStatus(healthy=False, mode="disabled",
                                 message="Plugin disabled via configuration.")
         if settings.misp_demo_mode:
-            return PluginStatus(configured=True, healthy=True, mode="demo",
+            return PluginStatus(healthy=True, mode="demo",
                                 message="Demo mode — using bundled sample events.")
         if not settings.misp_url or not settings.misp_api_key:
-            return PluginStatus(configured=False, healthy=False, mode="live",
+            return PluginStatus(healthy=False, mode="live",
                                 message="Live mode requires misp_url and misp_api_key.")
-        return PluginStatus(configured=True, healthy=True, mode="live",
+        return PluginStatus(healthy=True, mode="live",
                             message=f"Live mode — {settings.misp_url}.")
 
     def _fetch_events(self) -> List[dict]:

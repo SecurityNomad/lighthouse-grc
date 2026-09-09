@@ -86,17 +86,17 @@ class AWSConfigPlugin(RiskSourcePlugin):
 
     def status(self) -> PluginStatus:
         if not settings.aws_plugin_enabled:
-            return PluginStatus(configured=False, healthy=False, mode="disabled",
+            return PluginStatus(healthy=False, mode="disabled",
                                 message="Plugin disabled via configuration.")
         if settings.aws_demo_mode:
-            return PluginStatus(configured=True, healthy=True, mode="demo",
+            return PluginStatus(healthy=True, mode="demo",
                                 message="Demo mode — using bundled sample findings.")
         try:
             import boto3  # noqa: F401
         except ImportError:
-            return PluginStatus(configured=False, healthy=False, mode="live",
+            return PluginStatus(healthy=False, mode="live",
                                 message="Live mode requires boto3 (`pip install boto3`).")
-        return PluginStatus(configured=True, healthy=True, mode="live",
+        return PluginStatus(healthy=True, mode="live",
                             message=f"Live mode — region {settings.aws_region}.")
 
     def _fetch_findings(self) -> List[dict]:

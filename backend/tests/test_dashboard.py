@@ -95,3 +95,51 @@ async def test_dashboard_control_coverage_pct(client: AsyncClient):
 
     response = await client.get("/api/v1/dashboard")
     assert response.json()["control_coverage_pct"] > 0
+
+
+@pytest.mark.asyncio
+async def test_control_coverage_never_exceeds_100_percent(client: AsyncClient):
+    """Regression: a Closed or Accepted risk with a control mapped used to count
+    toward the numerator while being excluded from the denominator, producing a
+    coverage figure above 100%."""
+    controls = (await client.get("/api/v1/soa/iso27001")).json()["rows"]
+    control_id = controls[0]["control_id"]
+
+    # An active population is required first: with no active risks the endpoint
+    # short-circuits to 0.0 and the bug cannot surface.
+    mapped = await client.post("/api/v1/risks/", json={
+        "title": "Active mapped risk", "impact": "High", "likelihood": "Possible",
+        "treatment": "Mitigate", "owner": "CISO", "status": "Open",
+    })
+    await client.post(
+        f"/api/v1/risks/{mapped.json()['id']}/controls",
+        json={"control_id": control_id},
+    )
+    await client.post("/api/v1/risks/", json={
+        "title": "Active unmapped risk", "impact": "Low", "likelihood": "Rare",
+        "treatment": "Mitigate", "owner": "CISO", "status": "Open",
+    })
+
+    # Not asserted as an exact figure: tests in this module share a database, so
+    # the active population is whatever earlier tests left behind plus these two.
+    before = (await client.get("/api/v1/dashboard")).json()["control_coverage_pct"]
+    assert before > 0.0, "setup failed to produce an active, covered population"
+
+    # Inactive risks that DO have a control mapped. Each one used to add to the
+    # numerator while being excluded from the denominator.
+    for status in ("Closed", "Accepted"):
+        r = await client.post("/api/v1/risks/", json={
+            "title": f"{status} mapped risk", "impact": "Low", "likelihood": "Rare",
+            "treatment": "Accept", "owner": "CISO", "status": status,
+        })
+        await client.post(
+            f"/api/v1/risks/{r.json()['id']}/controls",
+            json={"control_id": control_id},
+        )
+
+    after = (await client.get("/api/v1/dashboard")).json()["control_coverage_pct"]
+
+    # Closed and Accepted risks are outside the active population entirely, so
+    # mapping controls to them must not move coverage at all.
+    assert after == before, f"coverage moved {before}% -> {after}%"
+    assert after <= 100.0, f"coverage was {after}%"

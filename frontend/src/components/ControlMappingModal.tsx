@@ -3,16 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { controlsApi, type ControlWithMapping } from '../api/controls'
 import type { Risk } from '../api/risks'
 import { useModalA11y } from '../lib/useModalA11y'
+import { FRAMEWORK_REF_BADGE } from '../lib/badges'
 
 interface Props {
   risk: Risk
   onClose: () => void
-}
-
-const FRAMEWORK_BADGE: Record<string, string> = {
-  soc2: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  iso27001: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  cis_v8: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
 }
 
 export default function ControlMappingModal({ risk, onClose }: Props) {
@@ -121,7 +116,7 @@ export default function ControlMappingModal({ risk, onClose }: Props) {
                   onClick={() => { setSelectedFramework(fw.id); setSearch('') }}
                   className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${
                     activeFramework === fw.id
-                      ? FRAMEWORK_BADGE[fw.slug] ?? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                      ? FRAMEWORK_REF_BADGE[fw.slug] ?? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -157,7 +152,7 @@ export default function ControlMappingModal({ risk, onClose }: Props) {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className={`text-xs font-mono font-semibold px-1.5 py-0.5 rounded ${FRAMEWORK_BADGE[activeFrameworkObj?.slug ?? ''] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
+                          <span className={`text-xs font-mono font-semibold px-1.5 py-0.5 rounded ${FRAMEWORK_REF_BADGE[activeFrameworkObj?.slug ?? ''] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
                             {ctrl.ref}
                           </span>
                           <span className="text-xs text-slate-500 dark:text-slate-400">{ctrl.domain}</span>

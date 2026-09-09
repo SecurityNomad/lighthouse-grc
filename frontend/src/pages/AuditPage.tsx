@@ -3,19 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { auditsApi, type AuditPlanSummary, type AuditPlanCreate } from '../api/audit'
 import { useForm } from 'react-hook-form'
 import { useModalA11y } from '../lib/useModalA11y'
+import { SEVERITY_BADGE } from '../lib/badges'
 
 const PLAN_STATUS_BADGE: Record<string, string> = {
   Draft: 'badge-gray',
   Active: 'badge-blue',
   Completed: 'badge-green',
   Cancelled: 'badge-red',
-}
-
-const FINDING_SEVERITY_BADGE: Record<string, string> = {
-  Critical: 'badge-red',
-  High: 'badge-orange',
-  Medium: 'badge-yellow',
-  Low: 'badge-green',
 }
 
 const TEST_RESULT_COLORS: Record<string, string> = {
@@ -352,7 +346,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`badge ${FINDING_SEVERITY_BADGE[f.severity] ?? 'badge-gray'}`}>
+                      <span className={`badge ${SEVERITY_BADGE[f.severity] ?? 'badge-gray'}`}>
                         {f.severity}
                       </span>
                       <select

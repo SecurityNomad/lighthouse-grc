@@ -22,18 +22,12 @@ async def list_frameworks(db: AsyncSession = Depends(get_db)):
     )
     counts = dict(counts_result.all())
 
-    out = []
-    for fw in frameworks:
-        fw_dict = {
-            "id": fw.id,
-            "slug": fw.slug,
-            "name": fw.name,
-            "version": fw.version,
-            "description": fw.description,
-            "control_count": counts.get(fw.id, 0),
-        }
-        out.append(FrameworkRead(**fw_dict))
-    return out
+    return [
+        FrameworkRead.model_validate(fw).model_copy(
+            update={"control_count": counts.get(fw.id, 0)}
+        )
+        for fw in frameworks
+    ]
 
 
 @router.get("/frameworks/{framework_id}/controls", response_model=List[ControlRead])
