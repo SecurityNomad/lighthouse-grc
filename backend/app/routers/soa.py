@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models.control import Control, Framework
+from app.models.control import Control, Framework, ref_sort_key
 from app.models.soa import ControlApplicability, READINESS_WEIGHTS
 from app.schemas.soa import SoARead, SoARow, SoASummary, SoAEntryUpdate
 
@@ -61,13 +61,12 @@ async def get_soa(
     if not framework:
         raise HTTPException(status_code=404, detail="Framework not found")
 
-    controls = (
-        await db.execute(
-            select(Control)
-            .where(Control.framework_id == framework.id)
-            .order_by(Control.ref)
-        )
-    ).scalars().all()
+    controls = sorted(
+        (
+            await db.execute(select(Control).where(Control.framework_id == framework.id))
+        ).scalars().all(),
+        key=lambda c: ref_sort_key(c.ref),
+    )
 
     entry_query = select(ControlApplicability).where(
         ControlApplicability.control_id.in_([c.id for c in controls])

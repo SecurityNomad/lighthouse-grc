@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Shield, BookOpen, FileCheck, Building2,
@@ -25,14 +25,19 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('lh_sidebar_collapsed') === 'true')
+  // Phones start collapsed: a 240px rail would cover most of a 390px screen.
+  const [collapsed, setCollapsed] = useState(
+    () => window.matchMedia('(max-width: 767px)').matches || localStorage.getItem('lh_sidebar_collapsed') === 'true',
+  )
   const { user, logout } = useAuth()
   const { clients, selectedClient, selectClient } = useClient()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    localStorage.setItem('lh_sidebar_collapsed', String(collapsed))
-  }, [collapsed])
+  // Persist only explicit choices, so the phone default never leaks to desktop.
+  function toggleCollapsed(next: boolean) {
+    setCollapsed(next)
+    localStorage.setItem('lh_sidebar_collapsed', String(next))
+  }
 
   function handleLogout() {
     logout()
@@ -54,7 +59,7 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
         )}
         {collapsed && <span className="text-indigo-400 font-bold text-lg mx-auto">L</span>}
         <button
-          onClick={() => setCollapsed(c => !c)}
+          onClick={() => toggleCollapsed(!collapsed)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!collapsed}
           className="text-slate-400 hover:text-white p-1 rounded ml-auto"
@@ -89,7 +94,7 @@ export default function Sidebar({ dark, onToggleDark }: SidebarProps) {
       {collapsed && (
         <div className="py-2 border-b border-slate-700 flex justify-center">
           <button
-            onClick={() => setCollapsed(false)}
+            onClick={() => toggleCollapsed(false)}
             title={selectedClient ? `Client: ${selectedClient.name}` : 'All clients'}
             aria-label={selectedClient ? `Active client: ${selectedClient.name}. Expand to change.` : 'All clients. Expand to select a client.'}
             className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold transition-colors ${

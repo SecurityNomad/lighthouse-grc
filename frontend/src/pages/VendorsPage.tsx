@@ -174,7 +174,7 @@ export default function VendorsPage() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div>
             <h1 className="page-title">Vendor Register</h1>
             <p className="page-subtitle">{vendors.length} vendor{vendors.length !== 1 ? 's' : ''}</p>
@@ -239,7 +239,7 @@ export default function VendorsPage() {
                         {v.contract_end ?? '—'}
                       </td>
                       <td>
-                        <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-3 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                           <button
                             onClick={() => setEditVendor(v)}
                             className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"

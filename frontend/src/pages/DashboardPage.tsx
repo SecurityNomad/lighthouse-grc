@@ -222,7 +222,7 @@ export default function DashboardPage() {
       {/* Lead: what needs attention, worst first */}
       <AttentionBanner signals={signals} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           label="Open Risks"
           value={totalRisks}
@@ -274,7 +274,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Risk by impact */}
         <div className="neu-card p-5">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 className="section-title">Open Risks by Impact</h2>
             <Link to="/risks" className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">View all →</Link>
           </div>
@@ -294,7 +294,7 @@ export default function DashboardPage() {
 
         {/* Vendors by tier */}
         <div className="neu-card p-5">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 className="section-title">
               Vendors ({totalVendors} total · {data.vendors_under_review} under review)
             </h2>

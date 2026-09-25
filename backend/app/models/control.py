@@ -1,7 +1,17 @@
+import re
 import uuid
 from sqlalchemy import String, Text, ForeignKey, Uuid, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+
+
+def ref_sort_key(ref: str) -> list:
+    """Natural order for control refs: CIS-2 before CIS-10, 5.2 before 5.10.
+
+    re.split with a capture group alternates text/number, so positions always
+    compare like with like.
+    """
+    return [int(p) if p.isdigit() else p for p in re.split(r"(\d+)", ref)]
 
 
 class Framework(Base):

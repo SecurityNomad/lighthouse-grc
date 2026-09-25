@@ -1,5 +1,5 @@
-import { useState, useEffect, type ReactNode } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useState, type ReactNode } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import Sidebar from './components/Sidebar'
 import LoginPage from './pages/LoginPage'
@@ -21,23 +21,32 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 function AppLayout({ children }: { children: ReactNode }) {
-  const [dark, setDark] = useState(() => localStorage.getItem('lh_dark') === 'true')
+  // index.html sets the initial class before paint; persist only explicit toggles.
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
 
-  useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    localStorage.setItem('lh_dark', String(dark))
-  }, [dark])
+  function toggleDark() {
+    const next = !dark
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('lh_dark', String(next))
+    setDark(next)
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-100 dark:bg-slate-900">
-      <Sidebar dark={dark} onToggleDark={() => setDark(d => !d)} />
-      <main className="flex-1 overflow-auto p-6">
+      <Sidebar dark={dark} onToggleDark={toggleDark} />
+      <main className="flex-1 min-w-0 overflow-auto p-4 md:p-6">
         {children}
       </main>
+    </div>
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="max-w-md">
+      <h1 className="page-title">Page not found</h1>
+      <p className="page-subtitle mb-5">This address doesn't match any part of Lighthouse.</p>
+      <Link to="/dashboard" className="btn-primary inline-block">Go to dashboard</Link>
     </div>
   )
 }
@@ -64,6 +73,7 @@ export default function App() {
                   <Route path="/clients" element={<ClientsPage />} />
                   <Route path="/plugins" element={<PluginsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
             </ProtectedRoute>

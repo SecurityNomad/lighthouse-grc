@@ -244,7 +244,7 @@ function UsersTab() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h2 className="section-title">User Accounts</h2>
           <p className="text-xs text-slate-400 mt-0.5">{users.length} user{users.length !== 1 ? 's' : ''} registered</p>

@@ -125,7 +125,7 @@ export default function ClientsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="page-title">Clients</h1>
           <p className="page-subtitle">Manage client engagements — select one to scope all GRC data</p>

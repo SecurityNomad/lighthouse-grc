@@ -118,7 +118,7 @@ export default function EvidencePage() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div>
             <h1 className="page-title">Evidence Collection</h1>
             <p className="page-subtitle">{items.length} file{items.length !== 1 ? 's' : ''}</p>
@@ -182,12 +182,12 @@ export default function EvidencePage() {
                     <td>
                       <span className={`badge ${STATUS_BADGE[e.status] ?? 'badge-gray'}`}>{e.status}</span>
                     </td>
-                    <td className="text-xs text-slate-500 dark:text-slate-400">{e.expiry_date ?? '—'}</td>
-                    <td className="text-xs text-slate-500 dark:text-slate-400">
-                      {new Date(e.uploaded_at).toLocaleDateString()}
+                    <td className="whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">{e.expiry_date ?? '—'}</td>
+                    <td className="whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
+                      {e.uploaded_at.slice(0, 10)}
                     </td>
                     <td>
-                      <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-3 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                         <button
                           onClick={() => downloadMut.mutate({ id: e.id, fileName: e.file_name })}
                           disabled={downloadMut.isPending}

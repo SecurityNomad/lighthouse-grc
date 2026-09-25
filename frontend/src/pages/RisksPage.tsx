@@ -38,7 +38,7 @@ export default function RisksPage() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div>
             <h1 className="page-title">Risk Register</h1>
             <p className="page-subtitle">

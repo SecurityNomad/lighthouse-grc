@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.database import get_db
-from app.models.control import Control, Framework
+from app.models.control import Control, Framework, ref_sort_key
 from app.schemas.control import ControlRead, FrameworkRead
 
 router = APIRouter()
@@ -41,7 +41,7 @@ async def list_controls(
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Framework not found")
 
-    query = select(Control).where(Control.framework_id == framework_id).order_by(Control.ref)
+    query = select(Control).where(Control.framework_id == framework_id)
 
     if domain:
         query = query.where(Control.domain == domain)
@@ -55,7 +55,7 @@ async def list_controls(
         )
 
     result = await db.execute(query)
-    return result.scalars().all()
+    return sorted(result.scalars().all(), key=lambda c: ref_sort_key(c.ref))
 
 
 @router.get("/controls/{control_id}", response_model=ControlRead)
