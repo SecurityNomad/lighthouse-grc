@@ -273,7 +273,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
 
       {/* Test Items */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="section-title">Test Items ({items.length})</h2>
           <button
             onClick={() => setAddItem(true)}
@@ -313,7 +313,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                     <td>
                       <button
                         onClick={() => { if (confirm('Delete this item?')) deleteItemMut.mutate(item.id) }}
-                        className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100"
+                        className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100"
                       >
                         Delete
                       </button>
@@ -328,7 +328,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
 
       {/* Findings */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="section-title">Findings ({findings.length})</h2>
           <button
             onClick={() => setAddFinding(true)}
@@ -368,7 +368,7 @@ function PlanDetail({ plan, onBack }: { plan: AuditPlanSummary; onBack: () => vo
                   </div>
                   <button
                     onClick={() => { if (confirm('Delete this finding?')) deleteFindingMut.mutate(f.id) }}
-                    className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100"
+                    className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100"
                   >
                     Delete
                   </button>
@@ -409,7 +409,7 @@ export default function AuditPage() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div>
             <h1 className="page-title">Audit Management</h1>
             <p className="page-subtitle">{plans.length} plan{plans.length !== 1 ? 's' : ''}</p>
@@ -455,7 +455,7 @@ export default function AuditPage() {
                     </div>
                   </div>
                   <div
-                    className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    className="flex gap-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex-shrink-0"
                     onClick={e => e.stopPropagation()}
                   >
                     <button

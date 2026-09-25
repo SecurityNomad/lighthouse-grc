@@ -25,17 +25,17 @@ export interface UserUpdate {
 
 export const adminApi = {
   listUsers: (): Promise<UserRead[]> =>
-    api.get('/api/v1/admin/users').then(r => r.data),
+    api.get('/admin/users').then(r => r.data),
 
   createUser: (data: UserCreate): Promise<UserRead> =>
-    api.post('/api/v1/admin/users', data).then(r => r.data),
+    api.post('/admin/users', data).then(r => r.data),
 
   updateUser: (id: string, data: UserUpdate): Promise<UserRead> =>
-    api.patch(`/api/v1/admin/users/${id}`, data).then(r => r.data),
+    api.patch(`/admin/users/${id}`, data).then(r => r.data),
 
   deleteUser: (id: string): Promise<void> =>
-    api.delete(`/api/v1/admin/users/${id}`),
+    api.delete(`/admin/users/${id}`),
 
   changePassword: (current_password: string, new_password: string): Promise<void> =>
-    api.post('/api/v1/auth/change-password', { current_password, new_password }).then(r => r.data),
+    api.post('/auth/change-password', { current_password, new_password }).then(r => r.data),
 }

@@ -16,6 +16,12 @@ const statusBadge: Record<string, string> = {
   Accepted: 'badge-green',
 }
 
+// ISO dates compare correctly as strings. Closed/Accepted risks need no review.
+function isReviewOverdue(risk: Risk) {
+  const today = new Date().toISOString().slice(0, 10)
+  return !!risk.review_date && risk.review_date < today && !['Closed', 'Accepted'].includes(risk.status)
+}
+
 function SkeletonRow() {
   return (
     <tr className="animate-pulse">
@@ -87,7 +93,14 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapCon
                   <span className={`badge ${statusBadge[risk.status] ?? 'badge-gray'}`}>{risk.status}</span>
                 </td>
                 <td className="whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                  {risk.review_date ?? <span className="text-slate-300 dark:text-slate-600">—</span>}
+                  {isReviewOverdue(risk) ? (
+                    <span className="font-medium text-red-700 dark:text-red-400">
+                      {risk.review_date}
+                      <span className="block text-xs font-semibold">Overdue</span>
+                    </span>
+                  ) : (
+                    risk.review_date ?? <span className="text-slate-300 dark:text-slate-600">—</span>
+                  )}
                 </td>
                 <td className="whitespace-nowrap">
                   <button
@@ -98,7 +111,7 @@ export default function RiskTable({ risks, isLoading, onEdit, onDelete, onMapCon
                   </button>
                 </td>
                 <td className="whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(risk)}
                       className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"

@@ -100,3 +100,12 @@ async def test_list_controls_framework_not_found(client: AsyncClient):
         "/api/v1/frameworks/00000000-0000-0000-0000-000000000000/controls"
     )
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_controls_sort_naturally(client: AsyncClient):
+    # String order puts CIS-10 before CIS-2; practitioners expect numeric order.
+    fw_resp = await client.get("/api/v1/frameworks")
+    cis = next(fw for fw in fw_resp.json() if fw["slug"] == "cis_v8")
+    refs = [c["ref"] for c in (await client.get(f"/api/v1/frameworks/{cis['id']}/controls")).json()]
+    assert refs.index("CIS-2") < refs.index("CIS-10")

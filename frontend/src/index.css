@@ -47,7 +47,7 @@ body {
   .neu-input {
     @apply w-full bg-slate-100 dark:bg-slate-900 rounded-xl text-sm
            text-slate-900 dark:text-slate-100 outline-none
-           placeholder-slate-400 dark:placeholder-slate-500
+           placeholder-slate-600 dark:placeholder-slate-400
            px-3 py-2.5;
     border: none;
     box-shadow: inset 3px 3px 7px var(--neu-lo), inset -3px -3px 7px var(--neu-hi);
@@ -122,6 +122,9 @@ body {
     box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
     transform: translateY(-1px);
   }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
 
   /* Danger button */
   .btn-danger {
@@ -176,8 +179,9 @@ body {
   }
 
   /* Table styling */
+  /* Scrolls sideways on narrow screens instead of clipping columns. */
   .neu-table-wrap {
-    @apply neu-card overflow-hidden;
+    @apply neu-card overflow-x-auto;
   }
   .neu-table {
     @apply w-full text-sm;
@@ -210,8 +214,19 @@ body {
   .badge-green  { @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400; }
   .badge-blue   { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
   .badge-purple { @apply bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400; }
-  .badge-gray   { @apply bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400; }
+  .badge-gray   { @apply bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300; }
   .badge-indigo { @apply bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400; }
+}
+
+/* Reduced motion: state changes still happen, they just don't travel. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  .btn-primary:hover:not(:disabled) { transform: none; }
 }
 
 /* Scrollbar */

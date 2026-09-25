@@ -22,10 +22,14 @@ async def get_dashboard(
     client_id: Optional[uuid.UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
+    # "Open" means unresolved: anything not Closed or Accepted. In Treatment is
+    # still live exposure, and every risk metric below shares this definition.
+    unresolved = Risk.status.notin_(["Closed", "Accepted"])
+
     # 1. Open risks by impact
     impact_query = (
         select(Risk.impact, func.count(Risk.id))
-        .where(Risk.status == "Open")
+        .where(unresolved)
         .group_by(Risk.impact)
     )
     if client_id:
@@ -38,16 +42,14 @@ async def get_dashboard(
 
     # 2. High risks open (impact_score >= 4)
     high_query = select(func.count(Risk.id)).where(
-        Risk.status == "Open", Risk.impact_score >= 4
+        unresolved, Risk.impact_score >= 4
     )
     if client_id:
         high_query = high_query.where(Risk.client_id == client_id)
     high_risks_open = (await db.execute(high_query)).scalar() or 0
 
     # 3. Control coverage % -- risks with at least one control mapped / total active risks
-    total_risks_query = select(func.count(Risk.id)).where(
-        Risk.status.notin_(["Closed", "Accepted"])
-    )
+    total_risks_query = select(func.count(Risk.id)).where(unresolved)
     if client_id:
         total_risks_query = total_risks_query.where(Risk.client_id == client_id)
     total_active_risks = (await db.execute(total_risks_query)).scalar() or 0
@@ -60,9 +62,7 @@ async def get_dashboard(
     # over 100%.
     covered_query = select(func.count(func.distinct(RiskControl.risk_id))).select_from(
         RiskControl
-    ).join(Risk, Risk.id == RiskControl.risk_id).where(
-        Risk.status.notin_(["Closed", "Accepted"])
-    )
+    ).join(Risk, Risk.id == RiskControl.risk_id).where(unresolved)
     if client_id:
         covered_query = covered_query.where(Risk.client_id == client_id)
     covered_risks = (await db.execute(covered_query)).scalar() or 0

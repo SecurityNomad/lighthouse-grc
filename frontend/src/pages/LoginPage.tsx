@@ -27,27 +27,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 mb-3">
-            <span className="text-indigo-600 font-bold text-4xl leading-none">L</span>
-            <span className="text-slate-800 font-bold text-2xl">Lighthouse</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-bold text-4xl leading-none">L</span>
+            <span className="text-slate-800 dark:text-slate-100 font-bold text-2xl">Lighthouse</span>
           </div>
-          <p className="text-slate-500 text-sm font-medium tracking-wide uppercase">GRC Platform</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">Governance, risk and compliance</p>
         </div>
 
         <div className="neu-card p-8">
-          <h1 className="text-lg font-bold text-slate-800 mb-6" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Sign in to your workspace
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="form-label">Email</label>
+              <label htmlFor="login-email" className="form-label">Email</label>
               <input
+                id="login-email"
                 type="email"
+                autoComplete="username"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -57,9 +59,11 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="form-label">Password</label>
+              <label htmlFor="login-password" className="form-label">Password</label>
               <input
+                id="login-password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
@@ -83,7 +87,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-5 text-xs text-slate-400 text-center">
+          <p className="mt-5 text-xs text-slate-600 dark:text-slate-400 text-center">
             Default: admin@lighthouse.local / changeme
           </p>
         </div>

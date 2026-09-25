@@ -143,3 +143,15 @@ async def test_control_coverage_never_exceeds_100_percent(client: AsyncClient):
     # mapping controls to them must not move coverage at all.
     assert after == before, f"coverage moved {before}% -> {after}%"
     assert after <= 100.0, f"coverage was {after}%"
+
+
+@pytest.mark.asyncio
+async def test_in_treatment_risk_counts_as_open(client: AsyncClient):
+    # In Treatment is unresolved exposure; only Closed/Accepted leave the open count.
+    before = (await client.get("/api/v1/dashboard")).json()["high_risks_open"]
+    await client.post(
+        "/api/v1/risks/",
+        json={"title": "Treated", "impact": "Critical", "likelihood": "Likely", "treatment": "Mitigate", "status": "In Treatment"},
+    )
+    after = (await client.get("/api/v1/dashboard")).json()["high_risks_open"]
+    assert after == before + 1
