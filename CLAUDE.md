@@ -2,27 +2,6 @@
 
 A minimalist GRC platform for small-to-mid SaaS companies. FastAPI backend + React frontend, running via Docker Compose.
 
-## Stack
-
-| Layer | Tech |
-|---|---|
-| Backend | Python 3.12 + FastAPI + SQLAlchemy 2.x (async) + Alembic |
-| Database | PostgreSQL 16 |
-| Frontend | React 18 + TypeScript + Vite + Tailwind CSS |
-| Runtime | Docker Compose (3 services: db, backend, frontend) |
-
-## Start / Stop
-
-```bash
-docker compose up          # start all services (postgres + backend + frontend)
-docker compose up --build  # rebuild images first (after requirements/package changes)
-docker compose down        # stop all services
-```
-
-- Frontend: http://localhost:3000
-- Backend API docs: http://localhost:8000/docs
-- Backend health: http://localhost:8000/health
-
 ## Backend
 
 ```bash
@@ -34,45 +13,22 @@ docker compose exec backend alembic upgrade head
 
 # Generate a new migration after model changes
 docker compose exec backend alembic revision --autogenerate -m "description"
-
-# Interactive shell
-docker compose exec backend python
 ```
-
-**Structure:**
-- `app/models/` — SQLAlchemy ORM models (UUID PKs, async-compatible)
-- `app/schemas/` — Pydantic v2 schemas (RiskBase / RiskCreate / RiskUpdate / RiskRead pattern)
-- `app/routers/` — FastAPI routers, one file per resource
-- `app/database.py` — async engine + `get_db` dependency
-- `app/config.py` — pydantic-settings; reads from `.env`
-- `alembic/versions/` — migration files, named `NNNN_description.py`
 
 **Conventions:**
 - All DB operations must be async (`await db.execute(...)`)
 - UUIDs as primary keys (`uuid.uuid4`)
 - Enum-like string fields (impact: Critical/High/Medium/Low, status: Open/In Treatment/Closed/Accepted)
 - Router prefix set in `main.py` (`/api/v1/<resource>`)
+- Pydantic schemas follow the `RiskBase` / `RiskCreate` / `RiskUpdate` / `RiskRead` pattern
+- Migrations are named `NNNN_description.py`
 
 ## Frontend
-
-```bash
-# Local dev without Docker (faster HMR)
-cd frontend && npm install && npm run dev
-
-# Type check
-cd frontend && npm run build
-```
-
-**Structure:**
-- `src/pages/` — top-level route components
-- `src/components/` — reusable UI components
-- `src/api/` — axios API clients, one file per resource (mirrors backend routers)
-- `src/App.tsx` — router + nav layout
-- API base URL proxied via Vite (`/api` → `http://localhost:8000`)
 
 **Conventions:**
 - `useQuery` from TanStack Query for all data fetching
 - `risksApi.list()`, `risksApi.create()` etc. — typed functions in `src/api/risks.ts`
+- `src/api/` mirrors the backend routers, one file per resource
 - Tailwind utility classes only, no custom CSS files
 - Colour-coded badges for impact (red/orange/yellow/green) and status (blue/purple/gray/green)
 
